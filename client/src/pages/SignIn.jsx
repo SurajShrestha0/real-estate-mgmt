@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { signInStart, signInSuccess, signInFailure } from "../redux/user/userSlice";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData((prevFormData) => ({
@@ -18,7 +20,8 @@ export default function SignIn() {
     e.preventDefault();
 
     try {
-      setLoading(true);
+      dispatch(signInStart());
+
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
@@ -29,34 +32,19 @@ export default function SignIn() {
 
       if (!res.ok) {
         const data = await res.json();
-
-        if (res.status === 404) {
-          // User not found
-          setError("User not found. Please check your email.");
-        } else if (res.status === 401) {
-          // Wrong password
-          setError("Incorrect password. Please try again.");
-        } else {
-          // Other server errors
-          setError(data.message || "An error occurred during sign-in.");
+        if (data.success === false) {
+          dispatch(signInFailure(data.message));
+          return;
         }
-
-        setLoading(false);
-        return;
       }
 
       const data = await res.json();
-
-      setLoading(false);
-      setError(null);
+      dispatch(signInSuccess(data));
       navigate("/");
 
-      // Continue with successful sign-in
-      console.log(data);
     } catch (error) {
       console.error("Error during sign-in:", error.message);
-      setError("An unexpected error occurred. Please try again later.");
-      setLoading(false);
+      dispatch(signInFailure("User not found!"));
     }
   };
 
@@ -72,7 +60,7 @@ export default function SignIn() {
           onChange={handleChange}
         />
         <input
-          type="password" // Change type to password for sensitive information like passwords
+          type="password"
           placeholder="password"
           className="border p-3 rounded-lg"
           id="password"
@@ -100,3 +88,5 @@ export default function SignIn() {
     </div>
   );
 }
+
+
