@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -15,7 +16,18 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
 
-    }
+    },
+
+    userType: {
+        type: String,
+        enum: ['admin', 'broker', 'tenant'],
+        required: true,
+    },
+
+    avatar:{
+        type: String,
+        default: "https://www.vecteezy.com/vector-art/9292244-default-avatar-icon-vector-of-social-media-user",
+    },
 
 }, {timestamps: true});
 

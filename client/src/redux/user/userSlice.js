@@ -1,29 +1,33 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    currentUser: null,
-    error: null,
-    loading: false,
+  currentUser: null,
+  error: null,
+  loading: false,
 };
 
 const userSlice = createSlice({
-    name: 'user',
-    initialState,
-    reducers: {
-        signInStart: (state) => {
-            state.loading = true;
-        },
-        signInSuccess: (state, action) => {
-            state.currentUser = action.payload || null;
-            state.loading = false;
-            state.error = null;
-        },
-        signInFailure: (state, action) => {
-            state.error = action.payload || "An unexpected error occurred.";
-            state.loading = false;
-        },
+  name: "user",
+  initialState: {
+    currentUser: null,
+    error: null,
+    loading: false,
+  },
+  reducers: {
+    signInStart: (state) => {
+      state.loading = true;
     },
-    // You can add extraReducers for handling other actions if needed
+    signInSuccess: (state, action) => {
+      state.currentUser = action.payload || null;
+      state.loading = false;
+      state.error = null;
+    },
+    signInFailure: (state, action) => {
+      state.error = action.payload || "An unexpected error occurred.";
+      state.loading = false;
+    },
+  },
+  // You can add extraReducers for handling other actions if needed
 });
 
 export const { signInStart, signInSuccess, signInFailure } = userSlice.actions;

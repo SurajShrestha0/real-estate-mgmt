@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { signInStart, signInSuccess, signInFailure } from "../redux/user/userSlice";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../redux/user/userSlice";
+import OAuth from "../components/OAuth";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
@@ -18,10 +23,10 @@ export default function SignIn() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       dispatch(signInStart());
-
+  
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
@@ -29,22 +34,43 @@ export default function SignIn() {
         },
         body: JSON.stringify(formData),
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        if (data.success === false) {
-          dispatch(signInFailure(data.message));
-          return;
-        }
-      }
-
+  
       const data = await res.json();
+  
+      if (!res.ok) {
+        dispatch(signInFailure(data.message || "Failed to sign in."));
+        return;
+      }
+  
       dispatch(signInSuccess(data));
-      navigate("/");
-
+  
+      // Store the userType in local storage or state for future use
+      localStorage.setItem("userType", data.userType);
+  
+      handleRedirect(data.userType);
+  
     } catch (error) {
       console.error("Error during sign-in:", error.message);
       dispatch(signInFailure("User not found!"));
+    }
+  };
+  
+
+  const handleRedirect = (userType) => {
+    switch (userType) {
+      case "admin":
+        navigate("/admin-home");
+        break;
+      case "broker":
+        navigate("/broker-home");
+        break;
+      case "tenant":
+        navigate("/tenant-home");
+        break;
+      default:
+        console.error("Invalid user type:", userType);
+        dispatch(signInFailure("Invalid user type."));
+        break;
     }
   };
 
@@ -75,6 +101,7 @@ export default function SignIn() {
         >
           {loading ? "Loading..." : "Sign In"}
         </button>
+        <OAuth />
       </form>
 
       {error && <p className="text-red-500 mt-2">{error}</p>}
@@ -88,5 +115,3 @@ export default function SignIn() {
     </div>
   );
 }
-
-
