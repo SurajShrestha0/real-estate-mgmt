@@ -18,7 +18,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
-    }),
+    }), // Wrap getDefaultMiddleware in a function that returns an array
 });
 
 export const persistor = persistStore(store);

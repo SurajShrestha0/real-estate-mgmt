@@ -8,11 +8,7 @@ const initialState = {
 
 const userSlice = createSlice({
   name: "user",
-  initialState: {
-    currentUser: null,
-    error: null,
-    loading: false,
-  },
+  initialState, // Use the initialState defined outside
   reducers: {
     signInStart: (state) => {
       state.loading = true;
@@ -27,10 +23,8 @@ const userSlice = createSlice({
       state.loading = false;
     },
   },
-  // You can add extraReducers for handling other actions if needed
 });
 
 export const { signInStart, signInSuccess, signInFailure } = userSlice.actions;
 
-// Export the reducer as the default export
 export default userSlice.reducer;

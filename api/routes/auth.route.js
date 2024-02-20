@@ -2,7 +2,7 @@ import express from 'express';
 import { google, signin, signup } from '../controller/auth.controller.js';
 import User from '../models/user.model.js';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
+import bcryptjs from 'bcryptjs'; // Corrected import statement
 
 const router = express.Router();
 
@@ -13,7 +13,7 @@ router.post('/signin', async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
 
-    if (!user || !bcrypt.compareSync(password, user.password)) {
+    if (!user || !bcryptjs.compareSync(password, user.password)) { // Changed to bcryptjs.compareSync
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 

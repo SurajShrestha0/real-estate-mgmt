@@ -36,10 +36,10 @@ export const signup = async (req, res, next) => {
 
 export const signin = async (req, res, next) => {
   const { email, password } = req.body;
-
+  console.log("Sign-in request:", email, password); // Log sign-in request
   try {
     const user = await User.findOne({ email });
-
+    console.log("User found:", user); // Log user data
     if (!user || !bcryptjs.compareSync(password, user.password)) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
@@ -50,12 +50,13 @@ export const signin = async (req, res, next) => {
       success: true,
       message: 'Login successful',
       userType: user.userType,
+      userId: user._id, // Include user's ID in the response
       token,
     });
 
   } catch (error) {
     console.error("Error during sign-in:", error);
-    return res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
+    next(errorHandler(500, "Internal Server Error"));
   }
 };
 
@@ -70,27 +71,10 @@ export const google = async (req, res, next) => {
         .status(200)
         .json(rest);
     } else {
-      const generatedPassword =
-        Math.random().toString(36).slice(-8) +
-        Math.random().toString(36).slice(-8);
-      const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
-      const newUser = new User({
-        username:
-          req.body.name.split(' ').join('').toLowerCase() +
-          Math.random().toString(36).slice(-4),
-        email: req.body.email,
-        password: hashedPassword,
-        avatar: req.body.photo,
-      });
-      await newUser.save();
-      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
-      const { password: pass, ...rest } = newUser._doc;
-      res
-        .cookie('access_token', token, { httpOnly: true })
-        .status(200)
-        .json(rest);
+      next(errorHandler(404, "User not found")); // Handle the case where user is not found
     }
   } catch (error) {
-    next(error);
+    console.error("Error during Google authentication:", error);
+    next(errorHandler(500, "Internal Server Error"));
   }
 };

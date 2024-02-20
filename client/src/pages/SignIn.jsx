@@ -9,24 +9,26 @@ import {
 import OAuth from "../components/OAuth";
 
 export default function SignIn() {
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const { loading, error } = useSelector((state) => state.user);
+  console.log("Redux state:", loading, error); // Log Redux stated
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleChange = (e) => {
+    const { id, value } = e.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [e.target.id]: e.target.value,
+      [id]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    console.log("Form data:", formData); // Log form data
     try {
       dispatch(signInStart());
-  
+
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
@@ -34,27 +36,25 @@ export default function SignIn() {
         },
         body: JSON.stringify(formData),
       });
-  
+
       const data = await res.json();
-  
+
       if (!res.ok) {
         dispatch(signInFailure(data.message || "Failed to sign in."));
         return;
       }
-  
+
       dispatch(signInSuccess(data));
-  
-      // Store the userType in local storage or state for future use
+
       localStorage.setItem("userType", data.userType);
-  
+
       handleRedirect(data.userType);
-  
+
     } catch (error) {
       console.error("Error during sign-in:", error.message);
-      dispatch(signInFailure("User not found!"));
+      dispatch(signInFailure("Failed to sign in. Please try again."));
     }
   };
-  
 
   const handleRedirect = (userType) => {
     switch (userType) {
@@ -70,13 +70,14 @@ export default function SignIn() {
       default:
         console.error("Invalid user type:", userType);
         dispatch(signInFailure("Invalid user type."));
+        // Navigate to a generic home page or display an error message
         break;
     }
   };
 
   return (
     <div className="p-3 max-w-lg mx-auto">
-      <h1 className="text-3xl text-center font-sembold my-7">Sign In</h1>
+      <h1 className="text-3xl text-center font-semibold my-7">Sign In</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           type="text"
