@@ -8,10 +8,10 @@ const initialState = {
 
 const userSlice = createSlice({
   name: "user",
-  initialState, // Use the initialState defined outside
+  initialState,
   reducers: {
     signInStart: (state) => {
-      state.loading = true;
+      state.loading = true; // Set loading to true when starting sign-in
     },
     signInSuccess: (state, action) => {
       state.currentUser = action.payload || null;
@@ -22,9 +22,30 @@ const userSlice = createSlice({
       state.error = action.payload || "An unexpected error occurred.";
       state.loading = false;
     },
+    updateUserStart: (state) => {
+      state.loading = true; // Set loading to true when starting the update operation
+      state.error = null; // Reset error when starting the update operation
+    },
+    updateUserSuccess: (state, action) => {
+      state.currentUser = action.payload;
+      state.loading = false;
+      state.error = null;
+    },
+    updateUserFailure: (state, action) => {
+      state.error = action.payload;
+      state.currentUser = null; // Reset currentUser to null on failure
+      state.loading = false;
+    },
   },
 });
 
-export const { signInStart, signInSuccess, signInFailure } = userSlice.actions;
+export const {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+  updateUserStart,
+  updateUserFailure,
+  updateUserSuccess,
+} = userSlice.actions;
 
 export default userSlice.reducer;

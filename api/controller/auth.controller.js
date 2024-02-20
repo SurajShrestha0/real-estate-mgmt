@@ -45,6 +45,7 @@ export const signin = async (req, res, next) => {
     }
 
     const token = jwt.sign({ userId: user._id, userType: user.userType }, process.env.JWT_SECRET);
+    // const { password: pass, ...rest } = user;
 
     res.json({
       success: true,
