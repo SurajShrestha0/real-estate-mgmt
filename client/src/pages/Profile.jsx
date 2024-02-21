@@ -6,10 +6,13 @@ import { updateUserStart, updateUserSuccess, updateUserFailure } from '../redux/
 
 export default function Profile() {
   const fileRef = useRef(null);
-  const currentUser = useSelector((state) => state.user.currentUser);
-
-  console.log("Username: ", currentUser.username);
+  const { currentUser, loading, error } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+
+  // Log currentUser object when it changes
+  useEffect(() => {
+    console.log("Current User:", currentUser);
+  }, [currentUser]);
 
   const [file, setFile] = useState(undefined);
   const [filePerc, setFilePerc] = useState(0);
@@ -57,9 +60,16 @@ export default function Profile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    // Check if currentUser.userId exists
+    if (!currentUser || !currentUser.userId) {
+      console.error('User ID is not available.');
+      return;
+    }
+  
     try {
       dispatch(updateUserStart());
-      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+      const res = await fetch(`/api/user/update/${currentUser.userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

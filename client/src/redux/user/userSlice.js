@@ -27,6 +27,7 @@ const userSlice = createSlice({
       state.error = null; // Reset error when starting the update operation
     },
     updateUserSuccess: (state, action) => {
+      console.log("Updated user data:", action.payload);
       state.currentUser = action.payload;
       state.loading = false;
       state.error = null;

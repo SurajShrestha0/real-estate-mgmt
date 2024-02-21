@@ -10,8 +10,8 @@ import OAuth from "../components/OAuth";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false); // State to track password visibility
   const { loading, error } = useSelector((state) => state.user);
-  console.log("Redux state:", loading, error); // Log Redux stated
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -25,7 +25,6 @@ export default function SignIn() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form data:", formData); // Log form data
     try {
       dispatch(signInStart());
 
@@ -46,7 +45,9 @@ export default function SignIn() {
 
       dispatch(signInSuccess(data));
 
-      localStorage.setItem("userType", data.userType);
+      localStorage.setItem("userData", JSON.stringify(data));
+
+      console.log("User data:", data); // Log user data to console
 
       handleRedirect(data.userType);
 
@@ -59,7 +60,7 @@ export default function SignIn() {
   const handleRedirect = (userType) => {
     switch (userType) {
       case "admin":
-        navigate("/admin-home");
+        navigate("/admin-dashboard");
         break;
       case "broker":
         navigate("/broker-home");
@@ -86,14 +87,23 @@ export default function SignIn() {
           id="email"
           onChange={handleChange}
         />
-        <input
-          type="password"
-          placeholder="password"
-          className="border p-3 rounded-lg"
-          id="password"
-          onChange={handleChange}
-        />
-
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="password"
+            className="border p-3 rounded-lg w-full"
+            id="password"
+            onChange={handleChange}
+          />
+          <button
+            type="button"
+            className="absolute inset-y-0 right-0 px-3 py-2"
+            style={{ backgroundColor: "transparent", border: "none", fontSize: "1rem" }}
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? "Hide" : "Show"}
+          </button>
+        </div>
         <button
           disabled={loading}
           className="bg-slate-700 text-white p-3 

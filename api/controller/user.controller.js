@@ -9,27 +9,52 @@ export const test = (req, res) => {
 };
 
 export const updateUser = async (req, res, next) => {
-  if (req.user.id !== req.params.id)
-    return next(errorHandler(401, "You can only update your own account!"));
-
   try {
-    if (req.body.password) {
-      req.body.password = bcryptjs.hashSync(req.body.password, 10);
+    // Check if req.user.id matches req.params.id
+    if (req.user.id !== req.params.id) {
+      return next(errorHandler(401, "You can only update your own account!"));
     }
 
+    let updateFields = {};
+
+    // Check if at least one field is provided for updating
+    if (!req.body.username && !req.body.email && !req.body.password && !req.body.avatar) {
+      return next(errorHandler(400, "At least one field (username, email, password, or avatar) is required for updating."));
+    }
+
+    // Check if username is provided and update it
+    if (req.body.username) {
+      updateFields.username = req.body.username;
+    }
+
+    // Check if email is provided and update it
+    if (req.body.email) {
+      updateFields.email = req.body.email;
+    }
+
+    // Check if password is provided and hash it
+    if (req.body.password) {
+      updateFields.password = bcryptjs.hashSync(req.body.password, 10);
+    }
+
+    // Check if avatar is provided and update it
+    if (req.body.avatar) {
+      updateFields.avatar = req.body.avatar;
+    }
+
+    // Update user document
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
-      {
-        $set: {
-          username: req.body.username,
-          email: req.body.email,
-          password: req.body.password,
-          avatar: req.body.avatar,
-        },
-      },
+      { $set: updateFields },
       { new: true }
     );
 
+    // If no user found with the provided ID, respond with a 404 error
+    if (!updatedUser) {
+      return next(errorHandler(404, "User not found."));
+    }
+
+    // Omit sensitive information from response
     const { password, ...rest } = updatedUser._doc;
 
     res.status(200).json(rest);
