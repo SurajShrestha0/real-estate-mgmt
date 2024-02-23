@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 
 export const verifyToken = (req, res, next) => {
     const token = req.cookies.access_token;
+    
     if (!token) {
         return next(errorHandler(401, 'Unauthorized'));
     }
@@ -12,9 +13,8 @@ export const verifyToken = (req, res, next) => {
             console.error('JWT verification failed:', err.message);
             return next(errorHandler(403, 'Forbidden: Invalid token'));
         }
-
-        // Token is valid, attach the decoded user information to the request object
         req.user = user;
         next();
     });
 };
+

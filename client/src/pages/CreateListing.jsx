@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   getDownloadURL,
   getStorage,
@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 import {useNavigate} from 'react-router-dom';
 
 export default function CreateListing() {
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, access_token } = useSelector((state) => state.user);
   const navigate = useNavigate();
   console.log(currentUser);
   const [files, setFiles] = useState([]);
@@ -133,6 +133,12 @@ export default function CreateListing() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+
+      // if(!access_token){
+      //   setError("Authentication token is missing");
+      //   return;
+      // }
+
       if (formData.imageUrls.length < 1)
         return setError("You must upload at least one image");
       if (+formData.regularPrice < +formData.discountPrice)
@@ -143,10 +149,11 @@ export default function CreateListing() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          // Authorization: `Bearer ${access_token}`,
         },
         body: JSON.stringify({
           ...formData,
-          userRef: currentUser.userId,
+          userRef: currentUser._id,
         }),
       });
       const data = await res.json();

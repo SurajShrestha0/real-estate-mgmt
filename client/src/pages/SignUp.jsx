@@ -42,6 +42,12 @@ export default function SignUp() {
         return;
       }
 
+      // If sign-up is successful, extract the token from the response
+      const { token } = data;
+
+      // Store token in local storage for future use
+      localStorage.setItem("accessToken", token);
+
       setLoading(false);
       setError(null);
       navigate("/sign-in");

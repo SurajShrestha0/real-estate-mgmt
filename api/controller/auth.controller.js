@@ -11,11 +11,12 @@ export const signup = async (req, res, next) => {
     const newUser = new User({ username, email, password: hashedPassword, userType });
     await newUser.save();
 
-    const token = jwt.sign({ id: newUser._id, userType: newUser.userType }, process.env.JWT_SECRET);
+    const token = generateToken(newUser._id, newUser.userType);
     // Exclude password field from the response
     const { password: pass, ...rest } = newUser._doc;
 
-    res.cookie('access_token', token, { httpOnly: true }).status(201).json(rest);
+    res.cookie('access_token', token, { httpOnly: true, path: '/api' });
+    res.status(201).json({ success: true, message: "Signup successful", ...rest });
   } catch (error) {
     console.error("Error during signup:", error);
     let errorMessage = "Internal Server Error";
@@ -43,18 +44,16 @@ export const signin = async (req, res, next) => {
     const validPassword = await bcryptjs.compare(password, validUser.password);
     if (!validPassword) return next(errorHandler(401, 'Wrong credentials!'));
 
-    const token = jwt.sign({ userId: validUser._id, userType: validUser.userType }, process.env.JWT_SECRET);
-    const response = {
-      userId: validUser._id,
-      username: validUser.username,
-      userType: validUser.userType,
-      // Include other necessary fields if needed
-      token // Include token if needed
-    };
-    res
-      .cookie('access_token', token, { httpOnly: true })
-      .status(200)
-      .json(response);
+    const token = generateToken(validUser._id, validUser.userType);
+    console.log("Generated token:", token);
+
+    // Store the token in a cookie with expiration time and SameSite attribute
+    res.cookie('access_token', token, { 
+      httpOnly: true, 
+      expires: new Date(Date.now() + 3600000), // Token expires in 1 hour
+      sameSite: 'strict' // Set SameSite attribute to prevent CSRF attacks
+    });
+    res.status(200).json({ success: true, message: "Login successful", token });
 
   } catch (error) {
     console.error("Error during sign-in:", error);
@@ -62,6 +61,32 @@ export const signin = async (req, res, next) => {
   }
 };
 
+export const handleSignIn = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user || !bcryptjs.compareSync(password, user.password)) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign({ id: user._id, userType: user.userType }, process.env.JWT_SECRET);
+
+    res.json({
+      success: true,
+      message: 'Login successful',
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      userType: user.userType,
+      avatar: user.avatar,
+      token,
+    });
+  } catch (error) {
+    console.error('Error during sign-in:', error);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
 
 export const google = async (req, res, next) => {
   try {
@@ -72,7 +97,7 @@ export const google = async (req, res, next) => {
 
     if (user) {
       // User exists, generate token and return user data
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const token = generateToken(user._id);
       const { password, ...userData } = user.toObject(); // Exclude password from user data
       res.cookie('access_token', token, { httpOnly: true }).status(200).json(userData);
     } else {
@@ -96,7 +121,7 @@ export const google = async (req, res, next) => {
       await user.save();
 
       // Generate token and return user data
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const token = generateToken(user._id);
       const { password, ...userData } = user.toObject(); // Exclude password from user data
       res.cookie('access_token', token, { httpOnly: true }).status(200).json(userData);
     }
@@ -112,4 +137,10 @@ export const signout = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-}
+};
+
+// Function to generate JWT token with expiration time
+const generateToken = (userId, userType) => {
+  const expiresIn = '1h'; // Token expires in 1 hour
+  return jwt.sign({ id: userId, userType }, process.env.JWT_SECRET, { expiresIn });
+};
