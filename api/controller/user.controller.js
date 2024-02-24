@@ -19,8 +19,18 @@ export const updateUser = async (req, res, next) => {
     let updateFields = {};
 
     // Check if at least one field is provided for updating
-    if (!req.body.username && !req.body.email && !req.body.password && !req.body.avatar) {
-      return next(errorHandler(400, "At least one field (username, email, password, or avatar) is required for updating."));
+    if (
+      !req.body.username &&
+      !req.body.email &&
+      !req.body.password &&
+      !req.body.avatar
+    ) {
+      return next(
+        errorHandler(
+          400,
+          "At least one field (username, email, password, or avatar) is required for updating."
+        )
+      );
     }
 
     // Check if username is provided and update it
@@ -68,17 +78,17 @@ export const deleteUser = async (req, res, next) => {
   try {
     // Ensure that the authenticated user is deleting their own account
     if (req.user.id !== req.params.id) {
-      return next(errorHandler(401, 'You can only delete your own account!'));
+      return next(errorHandler(401, "You can only delete your own account!"));
     }
 
     // Delete the user document
     await User.findByIdAndDelete(req.params.id);
 
     // Clear the access token cookie upon successful deletion
-    res.clearCookie('access_token');
+    res.clearCookie("access_token");
 
     // Respond with a success message
-    res.status(200).json('User has been deleted!');
+    res.status(200).json("User has been deleted!");
   } catch (error) {
     next(error);
   }
@@ -93,6 +103,32 @@ export const getUserListings = async (req, res, next) => {
       next(error);
     }
   } else {
-    return next(errorHandler(401, 'You can only view listings associated with your own account.'));
+    return next(
+      errorHandler(
+        401,
+        "You can only view listings associated with your own account."
+      )
+    );
   }
+};
+
+export const getUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) return next(errorHandler(404, "User not found!!"));
+
+    const { password: pass, ...rest } = user._doc;
+
+    res.status(200).json(rest);
+  } catch (error) {
+    next(error);
+  }
+  const user = await User.findById(req.params.id);
+
+  if (!user) return next(errorHandler(404, "User not found!!"));
+
+  const { password: pass, ...rest } = user._doc;
+
+  res.status(200).json(rest);
 };

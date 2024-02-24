@@ -29,6 +29,7 @@ export default function Listing() {
   const params = useParams();
   const { currentUser } = useSelector((state) => state.user);
 
+
   useEffect(() => {
     const fetchListing = async () => {
       try {
