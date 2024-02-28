@@ -13,6 +13,9 @@ import CreateListing from "./pages/CreateListing";
 import UpdateListing from "./pages/UpdateListing";
 import Listing from "./pages/Listing";
 import Search from "./pages/Search";
+import ContactUs from "./components/ContactUs";
+import Users from "./pages/Users";
+import AdminListings from "./pages/AdminListings";
 
 export default function App() {
   return (
@@ -24,6 +27,9 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path='/search' element={<Search /> } />
+        <Route path='/contact-us' element={<ContactUs /> } />
+        <Route path='/admin-dashboard/users' element={<Users /> } />
+        <Route path='/admin-dashboard/listings' element={<AdminListings /> } />
         <Route path="/listing/:listingId" element={<Listing />} />
 
         <Route element={<PrivateRoute />}>

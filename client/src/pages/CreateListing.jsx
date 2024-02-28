@@ -7,11 +7,23 @@ import {
 } from "firebase/storage";
 import { app } from "../firebase";
 import { useSelector } from "react-redux";
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 
 export default function CreateListing() {
   const { currentUser, access_token } = useSelector((state) => state.user);
   const navigate = useNavigate();
+
+  const [viewport, setViewport] = useState({
+    latitude: 27.73589737606684,
+    longitude: 85.32799401104741,
+    zoom: 14,
+    width: "100%",
+    height: "400px",
+  });
+  const [selectedLocation, setSelectedLocation] = useState(null);
+
   console.log(currentUser);
   const [files, setFiles] = useState([]);
   const [formData, setFormData] = useState({
@@ -35,6 +47,14 @@ export default function CreateListing() {
   const [loading, setLoading] = useState(false);
 
   console.log(formData);
+
+  const handleClickMap = (event) => {
+    const { lngLat } = event;
+    setSelectedLocation({
+      longitude: lngLat[0],
+      latitude: lngLat[1],
+    });
+  };
 
   const handleImageSubmit = (e) => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
@@ -133,7 +153,6 @@ export default function CreateListing() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-
       // if(!access_token){
       //   setError("Authentication token is missing");
       //   return;
@@ -162,7 +181,7 @@ export default function CreateListing() {
         setError(data.message);
       }
 
-      navigate(`/listing/${data._id}`)
+      navigate(`/listing/${data._id}`);
     } catch (error) {
       setError(error.message);
       setLoading(false);
@@ -369,12 +388,32 @@ export default function CreateListing() {
               </div>
             ))}
 
-          <button disabled={loading || uploading} className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80">
+          <button
+            disabled={loading || uploading}
+            className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
+          >
             {loading ? "Creating..." : "Create Listing"}
           </button>
           {error && <p className="text-red-700 text-sm">{error}</p>}
         </div>
       </form>
+
+      {/* Render Mapbox map */}
+      <MapContainer
+        center={[viewport.latitude, viewport.longitude]}
+        zoom={viewport.zoom}
+        style={{ width: viewport.width, height: viewport.height }}
+        onClick={handleClickMap}
+      >
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        {selectedLocation && (
+          <Marker
+            position={[selectedLocation.latitude, selectedLocation.longitude]}
+          >
+            <Popup>Selected Location</Popup>
+          </Marker>
+        )}
+      </MapContainer>
     </main>
   );
 }

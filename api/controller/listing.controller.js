@@ -107,7 +107,9 @@ export const getListings = async (req, res, next) => {
       .limit(limit)
       .skip(startIndex);
 
-    return res.status(200).json(listings);
+      const totalListings = await  Listing.countDocuments();
+
+    return res.status(200).json({listings, totalListings});
   } catch (error) {
     next(error);
   }

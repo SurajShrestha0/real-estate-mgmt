@@ -19,6 +19,7 @@ import {
   signOutUserSuccess,
 } from "../redux/user/userSlice.js";
 import { Link } from "react-router-dom";
+// import ConfirmationDialog from "../components/ConfirmationDialog.jsx";
 // import Cookies from "js-cookies";
 
 export default function Profile() {
@@ -27,8 +28,10 @@ export default function Profile() {
   const dispatch = useDispatch();
   const [userListings, setUserListings] = useState([]);
   const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [updateError, setUpdateError] = useState("");
 
   const [showListingsError, setShowListingsError] = useState(false);
+  // const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Log currentUser object when it changes
   useEffect(() => {
@@ -77,6 +80,9 @@ export default function Profile() {
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData({ ...formData, [id]: value });
+
+    setUpdateSuccess(false);
+    setUpdateError("");
   };
 
   const handleSubmit = async (e) => {
@@ -103,25 +109,40 @@ export default function Profile() {
         return;
       }
       dispatch(updateUserSuccess(data));
+      setUpdateSuccess(true);
+      showMessageFor30Seconds();
     } catch (error) {
+      setUpdateError(error.message);
       dispatch(updateUserFailure(error.message));
     }
   };
 
+  const showMessageFor30Seconds = () => {
+    setTimeout(() => {
+      setUpdateSuccess(false);
+      setUpdateError("");
+    }, 30000);
+  };
+
   const handleDeleteUser = async () => {
-    try {
-      dispatch(deleteUserStart());
-      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
-      if (data.success === false) {
-        dispatch(deleteUserFailure(data.message));
-        return;
+    const confirmed = window.confirm(
+      "Are you sure you want to delete your account?"
+    );
+    if (confirmed) {
+      try {
+        dispatch(deleteUserStart());
+        const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+          method: "DELETE",
+        });
+        const data = await res.json();
+        if (data.success === false) {
+          dispatch(deleteUserFailure(data.message));
+          return;
+        }
+        dispatch(deleteUserSuccess(data));
+      } catch (error) {
+        dispatch(deleteUserFailure(error.message));
       }
-      dispatch(deleteUserSuccess(data));
-    } catch (error) {
-      dispatch(deleteUserFailure(error.message));
     }
   };
 
@@ -253,29 +274,47 @@ export default function Profile() {
         </button>
 
         <Link
-          className="bg-green-700 text-white p-3 rounded-lg uppercase text-center hover:opacity-95"
+          className={`bg-green-700 text-white p-3 rounded-lg uppercase text-center hover:opacity-95 ${
+            currentUser.userType !== "broker" ? "hidden" : ""
+          }`}
           to={"/create-listing"}
         >
           Create Listing
         </Link>
       </form>
+
+      {/* Display success message if update succeeds */}
+      {updateSuccess && (
+        <p className="text-green-700 mt-2">User is updated successfully!</p>
+      )}
+      {/* Display error message if update fails */}
+      {updateError && <p className="text-red-700 mt-2">{updateError}</p>}
+
       <div className="flex justify-between mt-5">
-        <span
-          onClick={handleDeleteUser}
-          className="text-red-700 cursor-pointer"
-        >
-          Delete account
-        </span>
+        {currentUser.userType === "admin" ? null : (
+          <span
+            onClick={handleDeleteUser}
+            className="text-red-700 cursor-pointer"
+          >
+            Delete account
+          </span>
+        )}
+
         <span onClick={handleSignOut} className="text-red-700 cursor-pointer">
           Sign Out
         </span>
       </div>
 
-      <p className="text-red-700 mt-5">{error ? error : ""}</p>
+      {/* <p className="text-red-700 mt-5">{error ? error : ""}</p>
       <p className="text-green-700 mt-5">
         {updateSuccess ? "User is updated successfully!" : ""}
-      </p>
-      <button onClick={handleShowListings} className="text-green-700 w-full ">
+      </p> */}
+      <button
+        onClick={handleShowListings}
+        className={`text-green-700 w-full ${
+          currentUser.userType !== "broker" ? "hidden" : ""
+        }`}
+      >
         Show listings
       </button>
       <p className="text-red-700 mt-5">
@@ -314,7 +353,7 @@ export default function Profile() {
                   Delete
                 </button>
                 <Link to={`/update-listing/${listing._id}`}>
-                <button className="text-green-700 uppercase">Edit</button>
+                  <button className="text-green-700 uppercase">Edit</button>
                 </Link>
               </div>
             </div>

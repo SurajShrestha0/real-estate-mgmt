@@ -11,14 +11,13 @@ export const test = (req, res) => {
 
 export const updateUser = async (req, res, next) => {
   try {
-    // Check if req.user.id matches req.params.id
+    
     if (req.user.id !== req.params.id) {
       return next(errorHandler(401, "You can only update your own account!"));
     }
 
     let updateFields = {};
 
-    // Check if at least one field is provided for updating
     if (
       !req.body.username &&
       !req.body.email &&
@@ -33,39 +32,39 @@ export const updateUser = async (req, res, next) => {
       );
     }
 
-    // Check if username is provided and update it
+    
     if (req.body.username) {
       updateFields.username = req.body.username;
     }
 
-    // Check if email is provided and update it
+    
     if (req.body.email) {
       updateFields.email = req.body.email;
     }
 
-    // Check if password is provided and hash it
+    
     if (req.body.password) {
       updateFields.password = bcryptjs.hashSync(req.body.password, 10);
     }
 
-    // Check if avatar is provided and update it
+    
     if (req.body.avatar) {
       updateFields.avatar = req.body.avatar;
     }
 
-    // Update user document
+   
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
       { $set: updateFields },
       { new: true }
     );
 
-    // If no user found with the provided ID, respond with a 404 error
+    
     if (!updatedUser) {
       return next(errorHandler(404, "User not found."));
     }
 
-    // Omit sensitive information from response
+    
     const { password, ...rest } = updatedUser._doc;
 
     res.status(200).json(rest);
@@ -76,23 +75,41 @@ export const updateUser = async (req, res, next) => {
 
 export const deleteUser = async (req, res, next) => {
   try {
-    // Ensure that the authenticated user is deleting their own account
-    if (req.user.id !== req.params.id) {
+    
+    if (req.user.id !== req.params.id && req.user.userType !== 'admin') {
       return next(errorHandler(401, "You can only delete your own account!"));
     }
 
-    // Delete the user document
+   
     await User.findByIdAndDelete(req.params.id);
 
-    // Clear the access token cookie upon successful deletion
+   
     res.clearCookie("access_token");
 
-    // Respond with a success message
+    
     res.status(200).json("User has been deleted!");
   } catch (error) {
-    next(error);
+    
+    // next(error);
   }
 };
+
+const handleDeleteUser = async (userId) => {
+  try {
+    const message = await deleteUser(userId);
+    if (message === "User has been deleted!") {
+      // Remove the deleted user from the state
+      setUsers((prevUsers) =>
+        prevUsers.filter((user) => user._id !== userId)
+      );
+    } else {
+      console.error("Error deleting user: ", message);
+    }
+  } catch (error) {
+    console.error("Error deleting user: ", error);
+  }
+};
+
 
 export const getUserListings = async (req, res, next) => {
   if (req.user.id === req.params.id) {
@@ -124,11 +141,63 @@ export const getUser = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-  const user = await User.findById(req.params.id);
+  // const user = await User.findById(req.params.id);
 
-  if (!user) return next(errorHandler(404, "User not found!!"));
+  // if (!user) return next(errorHandler(404, "User not found!!"));
 
-  const { password: pass, ...rest } = user._doc;
+  // const { password: pass, ...rest } = user._doc;
 
-  res.status(200).json(rest);
+  // res.status(200).json(rest);
 };
+
+export const getUsers = async (req, res, next) => {
+
+  try {
+    const startIndex = parseInt(req.query.startIndex) || 0;
+    const limit = parseInt(req.query.limit) || 10;
+    const sortDirection = req.query.sort === 'asc' ? 1 : -1;
+  
+    const users = await User.find()
+    .sort( { createdAt: sortDirection })
+    .skip(startIndex)
+    .limit(limit);
+
+    const usersWithoutPassword = users.map((user) => {
+      const { password, ...rest } = user._doc;
+      return rest;
+    });
+
+    const totalUsers = await User.countDocuments();
+
+    const now = new Date();
+
+    const oneMonthAgo = new Date(
+      now.getFullYear(),
+      now.getMonth() - 1,
+      now.getDate()
+    );
+
+    const lastMonthUsers = await User.countDocuments({
+      createdAt: { $gte: oneMonthAgo},
+    });
+
+    res.status(200).json({
+      users: usersWithoutPassword,
+      totalUsers,
+      lastMonthUsers,
+    });
+
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+// export const getTotalUsers = async (req, res, next) => {
+//   try {
+//     const totalUsers = await User.countDocuments();
+//     res.status(200).json({ totalUsers });
+//   } catch (error) {
+//     next(errorHandler(500, "Internal server error"));
+//   }
+// };

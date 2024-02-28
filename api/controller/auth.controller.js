@@ -6,13 +6,11 @@ import { errorHandler } from '../utils/error.js';
 export const signup = async (req, res, next) => {
   const { username, email, password, userType } = req.body;
   try {
-    // Hashing the password asynchronously
     const hashedPassword = await bcryptjs.hash(password, 10);
     const newUser = new User({ username, email, password: hashedPassword, userType });
     await newUser.save();
 
     const token = generateToken(newUser._id, newUser.userType);
-    // Exclude password field from the response
     const { password: pass, ...rest } = newUser._doc;
 
     res.cookie('access_token', token, { httpOnly: true, path: '/api' });
@@ -35,10 +33,10 @@ export const signup = async (req, res, next) => {
 
 export const signin = async (req, res, next) => {
   const { email, password } = req.body;
-  console.log("Sign-in request:", email, password); // Log sign-in request
+  console.log("Sign-in request:", email, password); 
   try {
     const validUser = await User.findOne({ email });
-    console.log("User found:", validUser); // Log user data
+    console.log("User found:", validUser); 
 
     if (!validUser) return next(errorHandler(404, 'User not found!'));
     const validPassword = await bcryptjs.compare(password, validUser.password);
@@ -47,11 +45,10 @@ export const signin = async (req, res, next) => {
     const token = generateToken(validUser._id, validUser.userType);
     console.log("Generated token:", token);
 
-    // Store the token in a cookie with expiration time and SameSite attribute
     res.cookie('access_token', token, { 
       httpOnly: true, 
-      expires: new Date(Date.now() + 3600000), // Token expires in 1 hour
-      sameSite: 'strict' // Set SameSite attribute to prevent CSRF attacks
+      expires: new Date(Date.now() + 3600000), 
+      sameSite: 'strict'
     });
     res.status(200).json({ success: true, message: "Login successful", token });
 
@@ -92,41 +89,40 @@ export const google = async (req, res, next) => {
   try {
     const { email, name, photo } = req.body;
 
-    // Check if the user already exists in the database
     let user = await User.findOne({ email });
 
     if (user) {
-      // User exists, generate token and return user data
+    
       const token = generateToken(user._id);
-      const { password, ...userData } = user.toObject(); // Exclude password from user data
+      const { password, ...userData } = user.toObject();
       res.cookie('access_token', token, { httpOnly: true }).status(200).json(userData);
     } else {
-      // User doesn't exist, create a new user
+      
       const generatedPassword =
         Math.random().toString(36).slice(-8) +
         Math.random().toString(36).slice(-8);
       const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
       
-      // Generate a username based on the name
+      
       const username = name.split(' ').join('').toLowerCase() + Math.random().toString(36).slice(-4);
 
-      // Create the new user
+      
       user = new User({
         username,
         email,
         password: hashedPassword,
-        avatar: photo, // Assuming the photo contains the URL of the avatar
+        avatar: photo, 
       });
 
       await user.save();
 
-      // Generate token and return user data
+      
       const token = generateToken(user._id);
-      const { password, ...userData } = user.toObject(); // Exclude password from user data
+      const { password, ...userData } = user.toObject(); 
       res.cookie('access_token', token, { httpOnly: true }).status(200).json(userData);
     }
   } catch (error) {
-    next(error); // Pass any errors to the error handler middleware
+    next(error);
   }
 };
 
@@ -139,8 +135,8 @@ export const signout = async (req, res, next) => {
   }
 };
 
-// Function to generate JWT token with expiration time
+
 const generateToken = (userId, userType) => {
-  const expiresIn = '1h'; // Token expires in 1 hour
+  const expiresIn = '1h'; 
   return jwt.sign({ id: userId, userType }, process.env.JWT_SECRET, { expiresIn });
 };
