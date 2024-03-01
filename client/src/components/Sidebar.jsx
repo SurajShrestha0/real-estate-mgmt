@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaChartBar, FaUser, FaUsers, FaList } from 'react-icons/fa';
+import { FaMessage } from 'react-icons/fa6';
 import { Link, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -86,6 +87,21 @@ const Sidebar = () => {
                 <div className='flex items-center gap-5 font-semibold'>
                   <FaList />
                   Listings
+                </div>
+                
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/admin-dashboard/messages-from-contact"
+                className={`block hover:bg-gray-700 px-2 py-1 rounded ${
+                  location.pathname === "/admin-dashboard/messages-from-contact" ? "bg-gray-700" : ""
+                }`}
+              >
+                <div className='flex items-center gap-5 font-semibold'>
+                  <FaMessage />
+                  Messages From Contact
                 </div>
                 
               </Link>

@@ -3,7 +3,7 @@ import Sidebar from "../components/Sidebar";
 import { FaHouse } from "react-icons/fa6";
 import { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
-
+import { Link } from "react-router-dom";
 
 export default function AdminDashboard() {
   const [totalUsers, setTotalUsers] = useState(0);
@@ -81,7 +81,9 @@ export default function AdminDashboard() {
       <div className="pt-5">
         <div className="flex flex-wrap gap-5 justify-center">
           {/* Box for totalUsers */}
+          <Link to="/admin-dashboard/users">
           <div className="bg-gray-200 p-8 flex justify-between rounded-lg shadow-md flex-grow gap-5 cursor-pointer hover:transform hover:scale-105">
+            
             {/* User icon */}
             <div>
               <h3 className="text-gray-500 text-md uppercase"> Total Users</h3>
@@ -89,8 +91,10 @@ export default function AdminDashboard() {
             </div>
             <FaUsers className="bg-green-600  text-white rounded-full text-5xl p-3 ml-20 shadow-lg" />
           </div>
+          </Link>
 
           {/* Box for Total Listings */}
+          <Link to="/admin-dashboard/listings">
           <div className="bg-gray-200 p-8 flex justify-between rounded-lg shadow-md flex-grow gap-8 cursor-pointer hover:transform hover:scale-105">
             {/* Listing icon */}
             <div>
@@ -99,6 +103,7 @@ export default function AdminDashboard() {
             </div>
             <FaHouse className="bg-blue-600  text-white rounded-full text-5xl p-3 ml-20 shadow-lg" />
           </div>
+          </Link>
 
           {/* Box for Houses for Rent */}
           <div className="bg-gray-200 p-8 flex justify-between rounded-lg shadow-md flex-grow gap-8 cursor-pointer hover:transform hover:scale-105">

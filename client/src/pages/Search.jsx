@@ -56,12 +56,15 @@ export default function Search() {
       const searchQuery = urlParams.toString();
       const res = await fetch(`/api/listing/get?${searchQuery}`);
       const data = await res.json();
-      if (data.length > 8) {
-        setShowMore(true);
+      if (Array.isArray(data.listings)) {
+        // Set listings state to the array of listings
+        setListings(data.listings);
+        if (data.listings.length > 8) {
+          setShowMore(true);
+        }
       } else {
-        setShowMore(false);
+        console.error("Invalid data format from API");
       }
-      setListings(data);
       setLoading(false);
     };
 
@@ -259,7 +262,7 @@ export default function Search() {
 
           {showMore && (
             <button
-              onClick={onShowMoreClick()}
+              onClick={onShowMoreClick}
               className="text-green-700 hover:underline p-7 text-center w-full"
             >
               Show more

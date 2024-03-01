@@ -72,14 +72,18 @@ export default function Listing() {
           <Swiper navigation>
             {listing.imageUrls.map((url, index) => (
               <SwiperSlide key={url}>
+                  <div className="absolute inset-0 bg-gray-500 opacity-30 backdrop-filter backdrop-blur-sm"></div>
+
                 <div
-                  className='h-[550px] cursor-pointer'
+                
+                  className='h-[550px] cursor-pointer relative'
                   style={{
-                    background: `url(${url}) center no-repeat`,
+                    background: `url(${url}) center / contain no-repeat`,
                     backgroundSize: 'contain',
                   }}
                   onClick={() => openLightbox(index)}
-                ></div>
+                >
+                </div>
               </SwiperSlide>
             ))}
           </Swiper>

@@ -16,9 +16,11 @@ export default function Home() {
   useEffect(() => {
     const fetchOfferListings = async () => {
       try {
-        const res = await fetch("/api/listing/get?offer=true&limit=4");
+        const res = await fetch("/api/listing/get?offer=true&limit=6");
         const data = await res.json();
-        setOfferListings(data);
+        const listings = data.listings;
+        // console.log(data);
+        setOfferListings(listings);
         fetchRentListings();
       } catch (error) {
         console.log(error);
@@ -26,9 +28,10 @@ export default function Home() {
     };
     const fetchRentListings = async () => {
       try {
-        const res = await fetch("/api/listing/get?type=rent&limit=4");
+        const res = await fetch("/api/listing/get?type=rent&limit=6");
         const data = await res.json();
-        setRentListings(data);
+        const listings = data.listings;
+        setRentListings(listings);
         fetchSaleListings();
       } catch (error) {
         console.log(error);
@@ -37,9 +40,10 @@ export default function Home() {
 
     const fetchSaleListings = async () => {
       try {
-        const res = await fetch("/api/listing/get?type=sale&limit=4");
+        const res = await fetch("/api/listing/get?type=sale&limit=6");
         const data = await res.json();
-        setSaleListings(data);
+        const listings = data.listings;
+        setSaleListings(listings);
       } catch (error) {
         log(error);
       }
@@ -50,13 +54,13 @@ export default function Home() {
   return (
     <div>
       {/* top */}
-      <div className="flex flex-col gap-6 p-28 px-3 max-w-6xlmx-auto">
+      <div className="flex flex-col gap-6 pt-5 p-20 px-3 max-w-6xlmx-auto">
         <h1 className="text-slate-700 font-bold text-3xl lg:text-6xl">
           Easily find your <span className="text-slate 400">Dream</span>
           <br />
           home with ease
         </h1>
-        <div className="tex-gray-400 text-xs sm:t4ext-sm">
+        <div className="tex-gray-400 text-xl font-light sm:t4ext-sm">
           PropertEase where We make the search for your perfect place simple and
           hassle-free. Our team is here to support you at every stage, ensuring
           you find the ideal living space with ease.
@@ -74,7 +78,7 @@ export default function Home() {
         {offerListings &&
           offerListings.length > 0 &&
           offerListings.map((listing) => (
-            <SwiperSlide  key={listing._id}>
+            <SwiperSlide key={listing._id}>
               <div
                 style={{
                   background: `url(${listing.imageUrls[0]}) center no-repeat`,
@@ -88,9 +92,9 @@ export default function Home() {
       </Swiper>
 
       {/* listing results for offer, sale and rent */}
-      <div className="max-w-6xl mx-auto p-3 flex flex-col gap-8 my-10">
+      <div className="max-w-7xl mx-auto p-3 flex flex-col gap-8 my-10">
         {offerListings && offerListings.length > 0 && (
-          <div className="">
+          <div>
             <div className="my-3">
               <h2 className="text-2xl font-semibold text-slate-600">
                 Recent offers
@@ -122,7 +126,7 @@ export default function Home() {
                 Show more places for rent
               </Link>
             </div>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap justify-between gap-4">
               {rentListings.map((listing) => (
                 <ListingItem listing={listing} key={listing._id} />
               ))}
@@ -142,7 +146,7 @@ export default function Home() {
                 Show more places for sale
               </Link>
             </div>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap justify-between gap-4">
               {saleListings.map((listing) => (
                 <ListingItem listing={listing} key={listing._id} />
               ))}
