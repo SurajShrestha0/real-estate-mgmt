@@ -49,12 +49,27 @@ export default function CreateListing() {
   console.log(formData);
 
   const handleClickMap = (event) => {
-    const { lngLat } = event;
+    console.log("Map clicked");
+    const { lat, lng } = event.latlng;
     setSelectedLocation({
-      longitude: lngLat[0],
-      latitude: lngLat[1],
+      longitude: lng,
+      latitude: lat,
     });
   };
+
+  useEffect(() => {
+    const map = L.map("mapid").setView([viewport.latitude, viewport.longitude], viewport.zoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    map.on('click', handleClickMap); // Add this line
+  
+    return () => {
+      map.off('click', handleClickMap); // Remove the event listener when component unmounts
+    };
+  }, [viewport]);
+  
+  
 
   const handleImageSubmit = (e) => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
@@ -153,10 +168,6 @@ export default function CreateListing() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // if(!access_token){
-      //   setError("Authentication token is missing");
-      //   return;
-      // }
 
       if (formData.imageUrls.length < 1)
         return setError("You must upload at least one image");
@@ -168,11 +179,14 @@ export default function CreateListing() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Authorization: `Bearer ${access_token}`,
         },
         body: JSON.stringify({
           ...formData,
           userRef: currentUser._id,
+          location: {
+            type: "Point",
+            coordinates: [selectedLocation.longitude, selectedLocation.latitude],
+          },
         }),
       });
       const data = await res.json();
@@ -409,7 +423,7 @@ export default function CreateListing() {
         {selectedLocation && (
           <Marker
             position={[selectedLocation.latitude, selectedLocation.longitude]}
-          >
+          > 
             <Popup>Selected Location</Popup>
           </Marker>
         )}

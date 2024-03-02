@@ -1,11 +1,14 @@
 import express from 'express';
-import { sendMessage, fetchMessages } from '../controller/contact.controller.js';
+import { sendMessage, fetchMessages, fetchUnreadMessages } from '../controller/contact.controller.js';
 
 const router = express.Router();
 
-// Define route for handling message sending
+// Define routes for handling message sending and fetching
 router.post('/send', sendMessage);
 router.get('/messages', fetchMessages);
+
+// New route to fetch unread messages for the logged-in admin
+router.get('/unread-messages', fetchUnreadMessages);
 
 // Error handling middleware
 router.use((err, req, res, next) => {

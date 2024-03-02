@@ -24,30 +24,35 @@ mongoose
 const app = express();
 
 app.use(cors());
-
 app.use(express.json());
 app.use(cookieParser());
 
 //Creating an HTTP server
 const server = http.createServer(app);
 
-//Intregrating Socket.Io
+//Integrating Socket.IO
 const io = new Server(server, {
-    cors: {
-       origin: "http://localhost:5173", 
-       methods: ["GET", "POST"],
-       allowedHeaders: ["my-custom-header"],
-       credentials: true
-    }
-   });
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["my-custom-header"],
+    credentials: true,
+  },
+});
 
 io.on("connection", (socket) => {
   console.log("A user connected");
 
-  //Listening for new messages
+  // Example: Assume socket has adminId property set when admin logs in
+  const adminId = socket.adminId;
+
+  // Listen for new messages and send notifications to admin clients
   socket.on("newMessage", (message) => {
-    //Broadcasting the new message to all connected users
-    io.emit("newMessage", message);
+    // Check if the message is for the current admin
+    if (message.adminId === adminId) {
+      // Emit a notification event to the specific admin client
+      socket.emit("notification", "You have a new message");
+    }
   });
 
   socket.on("disconnect", () => {

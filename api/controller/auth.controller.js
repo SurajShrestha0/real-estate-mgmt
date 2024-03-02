@@ -87,7 +87,7 @@ export const handleSignIn = async (req, res) => {
 
 export const google = async (req, res, next) => {
   try {
-    const { email, name, photo } = req.body;
+    const { email, name, photo, userType } = req.body;
 
     let user = await User.findOne({ email });
 
@@ -112,6 +112,7 @@ export const google = async (req, res, next) => {
         email,
         password: hashedPassword,
         avatar: photo, 
+        userType,
       });
 
       await user.save();

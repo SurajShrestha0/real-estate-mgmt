@@ -40,3 +40,16 @@ export const fetchMessages = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch messages" });
   }
 };
+
+// Example controller function to fetch unread messages for the logged-in admin
+export const fetchUnreadMessages = async (req, res) => {
+  try {
+    const adminId = req.user.id; // Assuming you have authenticated the admin user and stored their ID in req.user
+    const unreadMessages = await Message.find({ adminId: adminId, isRead: false });
+    res.json(unreadMessages);
+  } catch (error) {
+    console.error('Error fetching unread messages:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
