@@ -43,6 +43,7 @@ export default function MessagesFromContactUs() {
             <div className='container mx-auto px-4 py-8'>
                 <h2 className='text-3xl font-bold mb-4'>Messages from Contact Us</h2>
                 <ul>
+                    
                     {messages.map((message, index) => (
                         <li key={index}>
                             {message.email}: {message.subject}

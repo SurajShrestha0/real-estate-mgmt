@@ -57,20 +57,6 @@ export default function CreateListing() {
     });
   };
 
-  useEffect(() => {
-    const map = L.map("mapid").setView([viewport.latitude, viewport.longitude], viewport.zoom);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-    map.on('click', handleClickMap); // Add this line
-  
-    return () => {
-      map.off('click', handleClickMap); // Remove the event listener when component unmounts
-    };
-  }, [viewport]);
-  
-  
-
   const handleImageSubmit = (e) => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
       setUploading(true);

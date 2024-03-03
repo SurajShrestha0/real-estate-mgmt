@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, getAuth, sendEmailVerification, signInWithPopup } from "firebase/auth";
 import { app } from "../firebase";
 import { useDispatch } from "react-redux";
 import { signInSuccess } from "../redux/user/userSlice";
@@ -23,8 +23,30 @@ export default function OAuth() {
       // Store the Google user data for later use
       setGoogleUser(result.user);
 
-      // Show the user type selection dialog
-      setShowUserTypeDialog(true);
+      // Check if the user exists
+      const res = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: result.user.email,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        // If user exists, sign in without showing user type dialog
+        dispatch(signInSuccess(data));
+        if (data.userType === "broker") {
+          navigate("/broker-home");
+        } else if (data.userType === "tenant") {
+          navigate("/tenant-home");
+        }
+      } else {
+        // If user doesn't exist, show user type selection dialog
+        setShowUserTypeDialog(true);
+      }
     } catch (error) {
       console.error("Error during Google authentication:", error);
       // Handle the error appropriately
@@ -50,6 +72,10 @@ export default function OAuth() {
     });
 
     if (res.ok) {
+      // Send email verification
+      const auth = getAuth(app);
+      await sendEmailVerification(auth.currentUser);
+
       const data = await res.json();
       dispatch(signInSuccess(data));
       // Redirect to the user's dashboard based on their user type

@@ -92,20 +92,21 @@ export const google = async (req, res, next) => {
     let user = await User.findOne({ email });
 
     if (user) {
-    
       const token = generateToken(user._id);
       const { password, ...userData } = user.toObject();
-      res.cookie('access_token', token, { httpOnly: true }).status(200).json(userData);
+      res.cookie('access_token', token, { httpOnly: true }).status(200).json({
+        success: true,
+        message: 'Login successful',
+        ...userData,
+        _id: userData._id // Include _id field
+      });
     } else {
-      
       const generatedPassword =
         Math.random().toString(36).slice(-8) +
         Math.random().toString(36).slice(-8);
       const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
       
-      
       const username = name.split(' ').join('').toLowerCase() + Math.random().toString(36).slice(-4);
-
       
       user = new User({
         username,
@@ -117,15 +118,20 @@ export const google = async (req, res, next) => {
 
       await user.save();
 
-      
       const token = generateToken(user._id);
       const { password, ...userData } = user.toObject(); 
-      res.cookie('access_token', token, { httpOnly: true }).status(200).json(userData);
+      res.cookie('access_token', token, { httpOnly: true }).status(200).json({
+        success: true,
+        message: 'Registration successful',
+        ...userData,
+        _id: userData._id // Include _id field
+      });
     }
   } catch (error) {
     next(error);
   }
 };
+
 
 export const signout = async (req, res, next) => {
   try {
