@@ -98,7 +98,7 @@ export const google = async (req, res, next) => {
         success: true,
         message: 'Login successful',
         ...userData,
-        _id: userData._id // Include _id field
+        _id: userData._id
       });
     } else {
       const generatedPassword =
@@ -124,7 +124,7 @@ export const google = async (req, res, next) => {
         success: true,
         message: 'Registration successful',
         ...userData,
-        _id: userData._id // Include _id field
+        _id: userData._id 
       });
     }
   } catch (error) {

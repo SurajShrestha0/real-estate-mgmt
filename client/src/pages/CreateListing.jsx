@@ -52,9 +52,20 @@ export default function CreateListing() {
     console.log("Map clicked");
     const { lat, lng } = event.latlng;
     setSelectedLocation({
-      longitude: lng,
       latitude: lat,
+      longitude: lng,
     });
+  };
+
+  const rapidApiKey = "b5fe3fdf75msh13ee08560c8e7f1p1ee2b8jsnbbb4ec216710";
+  const rapidApiHost = "maptiles.p.rapidapi.com";
+  const url = `https://${rapidApiHost}/es/map/v1/${viewport.zoom}/${viewport.latitude}/${viewport.longitude}.png`;
+  const options = {
+    method: "GET",
+    headers: {
+      "X-RapidAPI-Key": rapidApiKey,
+      "X-RapidAPI-Host": rapidApiHost,
+    },
   };
 
   const handleImageSubmit = (e) => {
@@ -154,6 +165,9 @@ export default function CreateListing() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if (!selectedLocation) {
+        throw new Error("You must select a location on the map");
+      }
 
       if (formData.imageUrls.length < 1)
         return setError("You must upload at least one image");
@@ -171,7 +185,10 @@ export default function CreateListing() {
           userRef: currentUser._id,
           location: {
             type: "Point",
-            coordinates: [selectedLocation.longitude, selectedLocation.latitude],
+            coordinates: [
+              selectedLocation.longitude,
+              selectedLocation.latitude,
+            ],
           },
         }),
       });
@@ -397,19 +414,22 @@ export default function CreateListing() {
           {error && <p className="text-red-700 text-sm">{error}</p>}
         </div>
       </form>
-
       {/* Render Mapbox map */}
+
       <MapContainer
         center={[viewport.latitude, viewport.longitude]}
         zoom={viewport.zoom}
         style={{ width: viewport.width, height: viewport.height }}
         onClick={handleClickMap}
       >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <TileLayer
+          url={url}
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
         {selectedLocation && (
           <Marker
             position={[selectedLocation.latitude, selectedLocation.longitude]}
-          > 
+          >
             <Popup>Selected Location</Popup>
           </Marker>
         )}

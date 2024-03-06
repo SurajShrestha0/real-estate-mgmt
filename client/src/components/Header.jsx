@@ -95,7 +95,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-slate-200 shadow-md">
+    <header className="bg-slate-200 shadow-md sticky top-0 z-50">
       <div className="flex justify-between items-center max-w-7xl mx-auto p-3">
         <h1
           className="font-bold text-sm sm:text-xl flex flex-wrap cursor-pointer"
