@@ -8,21 +8,13 @@ import {
 import { app } from "../firebase";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
+import MapComponent from "../components/MapComponent.jsx";
 
 export default function CreateListing() {
   const { currentUser, access_token } = useSelector((state) => state.user);
   const navigate = useNavigate();
 
-  const [viewport, setViewport] = useState({
-    latitude: 27.73589737606684,
-    longitude: 85.32799401104741,
-    zoom: 14,
-    width: "100%",
-    height: "400px",
-  });
-  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [Location, setLocation] = useState(null);
 
   console.log(currentUser);
   const [files, setFiles] = useState([]);
@@ -48,25 +40,14 @@ export default function CreateListing() {
 
   console.log(formData);
 
-  const handleClickMap = (event) => {
-    console.log("Map clicked");
+  const handleMapClick = (event) => {
     const { lat, lng } = event.latlng;
-    setSelectedLocation({
-      latitude: lat,
-      longitude: lng,
-    });
+    if (lat != null && lng != null) {
+      setLocation({ lat, lng });
+    }
   };
 
-  const rapidApiKey = "b5fe3fdf75msh13ee08560c8e7f1p1ee2b8jsnbbb4ec216710";
-  const rapidApiHost = "maptiles.p.rapidapi.com";
-  const url = `https://${rapidApiHost}/es/map/v1/${viewport.zoom}/${viewport.latitude}/${viewport.longitude}.png`;
-  const options = {
-    method: "GET",
-    headers: {
-      "X-RapidAPI-Key": rapidApiKey,
-      "X-RapidAPI-Host": rapidApiHost,
-    },
-  };
+  // console.log("selectedLocation:", selectedLocation);
 
   const handleImageSubmit = (e) => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
@@ -165,9 +146,9 @@ export default function CreateListing() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (!selectedLocation) {
-        throw new Error("You must select a location on the map");
-      }
+      // if (!selectedLocation) {
+      //   throw new Error("You must select a location on the map");
+      // }
 
       if (formData.imageUrls.length < 1)
         return setError("You must upload at least one image");
@@ -183,13 +164,7 @@ export default function CreateListing() {
         body: JSON.stringify({
           ...formData,
           userRef: currentUser._id,
-          location: {
-            type: "Point",
-            coordinates: [
-              selectedLocation.longitude,
-              selectedLocation.latitude,
-            ],
-          },
+          location: Location,
         }),
       });
       const data = await res.json();
@@ -203,6 +178,10 @@ export default function CreateListing() {
       setError(error.message);
       setLoading(false);
     }
+  };
+
+  const handleLocationChange = (newLocation) => {
+    setLocation(newLocation);
   };
 
   return (
@@ -405,6 +384,12 @@ export default function CreateListing() {
               </div>
             ))}
 
+          <MapComponent
+            initialLocation={{ lat: 27.6992988, lng: 85.4891138 }}
+            onLocationChange={handleLocationChange}
+            handleMapClick={handleMapClick}
+          />
+
           <button
             disabled={loading || uploading}
             className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
@@ -414,26 +399,42 @@ export default function CreateListing() {
           {error && <p className="text-red-700 text-sm">{error}</p>}
         </div>
       </form>
-      {/* Render Mapbox map */}
+
+      {/* {Object.keys(selectedLocation).length > 0 && ( // Check object has properties
+        <div className="w-full">
+          <MapComponent
+            onMapClick={handleClickMap}
+            selectedLocation={selectedLocation}
+            setSelectedLocation={setSelectedLocation}
+          />
+        </div>
+      )} */}
+
+      {/* Render Mapbox map
 
       <MapContainer
-        center={[viewport.latitude, viewport.longitude]}
-        zoom={viewport.zoom}
-        style={{ width: viewport.width, height: viewport.height }}
+        center={[27.73589737606684, 85.32799401104741]}
+        zoom={14}
+        style={{ width: "100%", height: "400px" }}
         onClick={handleClickMap}
       >
         <TileLayer
-          url={url}
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         {selectedLocation && (
-          <Marker
-            position={[selectedLocation.latitude, selectedLocation.longitude]}
-          >
+          <Circle
+          center={[
+            selectedLocation.latitude,
+            selectedLocation.longitude,
+          ]}
+          radius={200} // Adjust the radius as needed
+          pathOptions={{ color: "blue" }} // Customize the circle's appearance
+        >
             <Popup>Selected Location</Popup>
-          </Marker>
+          </Circle>
         )}
-      </MapContainer>
+      </MapContainer> */}
     </main>
   );
 }

@@ -26,6 +26,7 @@ export default function Listing() {
   const [contact, setContact] = useState(false);
   const [lightboxIsOpen, setLightboxIsOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  // const [showAppointmentSchedule, setShowAppointmentSchedule] = useState(false);
   const params = useParams();
   const { currentUser } = useSelector((state) => state.user);
 
