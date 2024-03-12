@@ -38,7 +38,7 @@ const Sidebar = () => {
 
   return (
     currentUser && (
-      <div className="bg-slate-600 text-white h-screen w-60 rounded-tr-xl rounded-br-xl overflow-y-hidden">
+      <div className="bg-slate-600 text-white h-[700px] w-60 overflow-y-hidden">
         <div className="p-4 border-b border-gray-700">
           <Link to="/profile" className="text-white font-semibold">
             <div className='flex items-center gap-5'>

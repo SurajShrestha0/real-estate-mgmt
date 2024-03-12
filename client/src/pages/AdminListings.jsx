@@ -45,13 +45,16 @@ export default function Listings() {
   // Function to render listings table rows
 const renderListings = () => {
   return listings.map((listing) => (
-    <tr key={listing._id} className="bg-white border-gray-200">
-      <td className="px-4 py-2">{new Date(listing.CreatedAt).toLocaleString()}</td>
+    <tr key={listing._id} className="bg-white border-gray-200 text-sm">
+      
+      <td className="px-4 py-2">{new Date(listing.createdAt).toLocaleDateString('en-US')}</td>
+
       <td className="px-4 py-2">
         {getUsernameFromUserId(listing._id)}
       </td>
+    
       <td className="px-4 py-2">{listing.name}</td>
-      <td className="px-4 py-2">{listing.description}</td>
+      <td className="px-4 py-2"><div className="h-20 overflow-y-auto">{listing.description}</div></td>
       <td className="px-4 py-2">{listing.address}</td>
       <td className="px-4 py-2">{listing.regularPrice.toLocaleString("en-IN")}</td>
       <td className="px-4 py-2">{listing.discountPrice.toLocaleString("en-IN")}</td>
@@ -70,26 +73,26 @@ const renderListings = () => {
 
   return (
     <div className="flex gap-4">
-      <Sidebar />
-      <div className="container mx-auto px-4 py-8">
+      <Sidebar className=""/>
+      <div className="container mx-auto px-4 pt-8 ">
         <h1 className="text-3xl font-bold mb-4">Listings</h1>
-        <div className="overflow-x-auto">
-          <table className="table-auto w-full border-collapse border border-gray-200">
+        <div className="overflow-y-auto h-[615px]">
+          <table className="table-auto w-full border border-gray-200 border-collapse striped ">
             <thead>
               <tr className="bg-gray-100">
-                <th className="px-4 py-2">Date Created</th>
-                <th className="px-4 py-2">Username</th>
-                <th className="px-4 py-2">Name</th>
-                <th className="px-4 py-2">Description</th>
-                <th className="px-4 py-2">Address</th>
-                <th className="px-4 py-2">Regular Price</th>
-                <th className="px-4 py-2">Discount Price</th>
-                <th className="px-4 py-2">Bathrooms</th>
-                <th className="px-4 py-2">Bedrooms</th>
-                <th className="px-4 py-2">Furnished</th>
-                <th className="px-4 py-2">Parking</th>
-                <th className="px-4 py-2">Type</th>
-                <th className="px-4 py-2">Actions</th>
+                <th className="px-4 py-2 bg-gray-100 text-bold">Date Created</th>
+                <th className="px-4 py-2 bg-gray-100 text-bold">Username</th>
+                <th className="px-4 py-2 bg-gray-100 text-bold">Title</th>
+                <th className="px-4 py-2 bg-gray-100 text-bold">Description</th>
+                <th className="px-4 py-2 bg-gray-100 text-bold">Address</th>
+                <th className="px-4 py-2 bg-gray-100 text-bold">Regular Price</th>
+                <th className="px-4 py-2 bg-gray-100 text-bold">Discount Price</th>
+                <th className="px-4 py-2 bg-gray-100 text-bold">Bathrooms</th>
+                <th className="px-4 py-2 bg-gray-100 text-bold">Bedrooms</th>
+                <th className="px-4 py-2 bg-gray-100 text-bold">Furnished</th>
+                <th className="px-4 py-2 bg-gray-100 text-bold">Parking</th>
+                <th className="px-4 py-2 bg-gray-100 text-bold">Type</th>
+                <th className="px-4 py-2 bg-gray-100 text-bold">Actions</th>
               </tr>
             </thead>
             <tbody>{renderListings()}</tbody>

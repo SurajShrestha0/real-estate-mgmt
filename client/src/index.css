@@ -42,3 +42,26 @@ body {
     color: #fff;
     font-size: 24px;
 }
+
+   
+
+/* Custom Scrollbar Width */
+::-webkit-scrollbar {
+    width: 10px; /* Adjust the width as needed */
+   }
+   
+   /* Custom Scrollbar Track */
+   ::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Adjust the track color as needed */
+   }
+   
+   /* Custom Scrollbar Thumb */
+   ::-webkit-scrollbar-thumb {
+    background: #888; /* Adjust the thumb color as needed */
+    border-radius: 5px; /* Adjust the thumb border radius as needed */
+   }
+   
+   /* Custom Scrollbar Thumb on Hover */
+   ::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Adjust the thumb hover color as needed */
+   }

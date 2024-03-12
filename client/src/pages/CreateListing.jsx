@@ -14,7 +14,6 @@ export default function CreateListing() {
   const { currentUser, access_token } = useSelector((state) => state.user);
   const navigate = useNavigate();
 
-  const [Location, setLocation] = useState(null);
 
   console.log(currentUser);
   const [files, setFiles] = useState([]);
@@ -31,6 +30,7 @@ export default function CreateListing() {
     offer: false,
     parking: false,
     furnished: false,
+
   });
 
   const [imageUploadError, setImageUploadError] = useState(false);
@@ -40,14 +40,6 @@ export default function CreateListing() {
 
   console.log(formData);
 
-  const handleMapClick = (event) => {
-    const { lat, lng } = event.latlng;
-    if (lat != null && lng != null) {
-      setLocation({ lat, lng });
-    }
-  };
-
-  // console.log("selectedLocation:", selectedLocation);
 
   const handleImageSubmit = (e) => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
@@ -146,10 +138,6 @@ export default function CreateListing() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // if (!selectedLocation) {
-      //   throw new Error("You must select a location on the map");
-      // }
-
       if (formData.imageUrls.length < 1)
         return setError("You must upload at least one image");
       if (+formData.regularPrice < +formData.discountPrice)
@@ -164,7 +152,6 @@ export default function CreateListing() {
         body: JSON.stringify({
           ...formData,
           userRef: currentUser._id,
-          location: Location,
         }),
       });
       const data = await res.json();
@@ -178,10 +165,6 @@ export default function CreateListing() {
       setError(error.message);
       setLoading(false);
     }
-  };
-
-  const handleLocationChange = (newLocation) => {
-    setLocation(newLocation);
   };
 
   return (
@@ -384,11 +367,7 @@ export default function CreateListing() {
               </div>
             ))}
 
-          <MapComponent
-            initialLocation={{ lat: 27.6992988, lng: 85.4891138 }}
-            onLocationChange={handleLocationChange}
-            handleMapClick={handleMapClick}
-          />
+            <MapComponent/>
 
           <button
             disabled={loading || uploading}
@@ -399,42 +378,6 @@ export default function CreateListing() {
           {error && <p className="text-red-700 text-sm">{error}</p>}
         </div>
       </form>
-
-      {/* {Object.keys(selectedLocation).length > 0 && ( // Check object has properties
-        <div className="w-full">
-          <MapComponent
-            onMapClick={handleClickMap}
-            selectedLocation={selectedLocation}
-            setSelectedLocation={setSelectedLocation}
-          />
-        </div>
-      )} */}
-
-      {/* Render Mapbox map
-
-      <MapContainer
-        center={[27.73589737606684, 85.32799401104741]}
-        zoom={14}
-        style={{ width: "100%", height: "400px" }}
-        onClick={handleClickMap}
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        {selectedLocation && (
-          <Circle
-          center={[
-            selectedLocation.latitude,
-            selectedLocation.longitude,
-          ]}
-          radius={200} // Adjust the radius as needed
-          pathOptions={{ color: "blue" }} // Customize the circle's appearance
-        >
-            <Popup>Selected Location</Popup>
-          </Circle>
-        )}
-      </MapContainer> */}
     </main>
   );
 }

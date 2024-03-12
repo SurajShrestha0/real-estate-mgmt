@@ -1,67 +1,51 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css"; // Import Leaflet CSS
+import React, { useRef, useEffect, useState } from 'react';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css'; // Ensure Mapbox GL CSS is imported
 
-const MapComponent = ({ initialLocation, onLocationChange }) => {
-  const [position, setPosition] = useState(initialLocation || null); // Initialize with null
-  const markerRef = useRef(null); // Reference to the marker
+mapboxgl.accessToken = 'pk.eyJ1IjoiZHJlYW1jYXRjaGVyMiIsImEiOiJjbHRud2FzMjkwYWFrMmxueXdnc3hneW83In0.0UOeq9rcLdP7pZbv6r-07w';
 
-  useEffect(() => {
-    if (!initialLocation) {
-      console.log("Getting current position...");
-      navigator.geolocation.getCurrentPosition((pos) => {
-        console.log("Position:", pos);
-        setPosition([pos.coords.latitude, pos.coords.longitude]);
-        onLocationChange({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-        });
-      });
-    } else {
-      console.log("Setting initial location:", initialLocation);
-      setPosition(initialLocation);
-    }
-  }, [initialLocation, onLocationChange]);
+const MapComponent = () => {
+ const mapContainerRef = useRef(null);
+ const [mapObject, setMapObject] = useState(null);
+ const [marker, setMarker] = useState(null);
 
-  const handleMarkerDragEnd = (event) => {
-  console.log("Marker drag end event triggered");
-  const marker = markerRef.current;
-  if (marker) {
-    const newLocation = marker.getLatLng();
-    console.log("New marker location:", newLocation);
-    
-    // Update state with the new location coordinates
-    setPosition(newLocation);
-    
-    // Call parent function to update listing location
-    onLocationChange({ lat: newLocation.lat, lng: newLocation.lng });
-  }
-};
+ useEffect(() => {
+    const map = new mapboxgl.Map({
+      container: mapContainerRef.current,
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [-104.9876, 39.7405], // Default center
+      zoom: 12.5,
+      projection: { name: "mercator" }, // Set projection to mercator to fix zooming issues
+    });
 
+    setMapObject(map);
 
-  return (
-    <MapContainer
-      center={position}
-      zoom={13}
-      style={{ height: "400px" }}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      {position && (
-        <Marker
-          position={position}
-          draggable
-          eventHandlers={{ dragend: handleMarkerDragEnd }}
-          ref={markerRef}
-        >
-          <Popup>Property Location</Popup>
-        </Marker>
-      )}
-    </MapContainer>
-  );
+    // Request user's location
+    navigator.geolocation.getCurrentPosition(position => {
+      const { latitude, longitude } = position.coords;
+      // Update map center to user's location
+      map.setCenter([longitude, latitude]);
+    });
+
+    // Add marker on click
+    map.on('click', function(event) {
+      if (marker) {
+        marker.setLngLat(event.lngLat); // Update marker position
+      } else {
+        const newMarker = new mapboxgl.Marker()
+          .setLngLat(event.lngLat)
+          .addTo(map);
+        setMarker(newMarker); // Keep track of the marker
+      }
+
+      // Log latitude and longitude
+      console.log('Latitude:', event.lngLat.lat, 'Longitude:', event.lngLat.lng);
+    });
+
+    return () => map.remove();
+ }, []);
+
+ return <div className="w-full h-60" ref={mapContainerRef} />;
 };
 
 export default MapComponent;
-
