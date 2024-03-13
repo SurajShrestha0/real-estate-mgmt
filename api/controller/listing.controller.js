@@ -3,12 +3,35 @@ import { errorHandler } from "../utils/error.js";
 
 export const createListing = async (req, res, next) => {
   try {
-    const listing = await Listing.create(req.body);
-    return res.status(201).json(listing);
+    
+     const { latitude, longitude } = req.body;
+
+     
+    // Perform validation if necessary
+    if (!latitude || !longitude) {
+      return res.status(400).json({ success: false, message: "Invalid coordinates" });
+    }
+     
+    //  const location = {
+    //    type: 'Point',
+    //    coordinates: [longitude, latitude],
+    //  };
+     
+    //  req.body.location = location;
+     
+     const listing = await Listing.create({
+      latitude,
+      longitude,
+      ...req.body,
+     });
+
+     console.log("smthg: ", req.body);
+     return res.status(201).json(listing);
   } catch (error) {
-    next(error);
+     next(error);
   }
-};
+ };
+ 
 
 export const deleteListing = async (req, res, next) => {
   const listing = await Listing.findById(req.params.id);
@@ -32,23 +55,34 @@ export const deleteListing = async (req, res, next) => {
 export const updateListing = async (req, res, next) => {
   const listing = await Listing.findById(req.params.id);
   if (!listing) {
-    return next(errorHandler(404, "Listing not found!"));
+     return next(errorHandler(404, "Listing not found!"));
   }
   if (req.user.id !== listing.userRef) {
-    return next(errorHandler(401, "You can only update your own listings!"));
+     return next(errorHandler(401, "You can only update your own listings!"));
   }
-
+ 
   try {
-    const updatedListing = await Listing.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    res.status(200).json(updatedListing);
+     
+     const { latitude, longitude } = req.body;
+    
+     if (latitude && longitude) {
+       req.body.location = {
+         type: 'Point',
+         coordinates: [longitude, latitude],
+       };
+     }
+     
+     const updatedListing = await Listing.findByIdAndUpdate(
+       req.params.id,
+       req.body,
+       { new: true }
+     );
+     res.status(200).json(updatedListing);
   } catch (error) {
-    next(error);
+     next(error);
   }
-};
+ };
+ 
 
 export const getListing = async (req, res, next) => {
   try {

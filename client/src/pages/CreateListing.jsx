@@ -14,6 +14,8 @@ export default function CreateListing() {
   const { currentUser, access_token } = useSelector((state) => state.user);
   const navigate = useNavigate();
 
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
 
   console.log(currentUser);
   const [files, setFiles] = useState([]);
@@ -30,7 +32,8 @@ export default function CreateListing() {
     offer: false,
     parking: false,
     furnished: false,
-
+    latitude: null,
+    longitude: null,
   });
 
   const [imageUploadError, setImageUploadError] = useState(false);
@@ -38,8 +41,11 @@ export default function CreateListing() {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  console.log(formData);
-
+  // console.log(formData);
+  useEffect(() => {
+    console.log(formData);
+   }, [formData]);
+   
 
   const handleImageSubmit = (e) => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
@@ -135,6 +141,18 @@ export default function CreateListing() {
     }
   };
 
+  const handleMarkerPlaced = (lat, lng) => {
+    console.log("Latitude:", lat, "Longitude:", lng);
+    setLatitude(lat);
+    setLongitude(lng);
+  
+    setFormData((prevState) => ({
+      ...prevState,
+      latitude: lat,
+      longitude: lng,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -142,8 +160,12 @@ export default function CreateListing() {
         return setError("You must upload at least one image");
       if (+formData.regularPrice < +formData.discountPrice)
         return setError("Discount price must be lower than the regular price");
+      if (!latitude || !longitude)
+        return setError("Please place a marker on the map to set the location.");
+  
       setLoading(true);
       setError(false);
+  
       const res = await fetch("/api/listing/create", {
         method: "POST",
         headers: {
@@ -159,13 +181,14 @@ export default function CreateListing() {
       if (data.success === false) {
         setError(data.message);
       }
-
+  
       navigate(`/listing/${data._id}`);
     } catch (error) {
       setError(error.message);
       setLoading(false);
     }
   };
+  
 
   return (
     <main className="p-3 max-w-4xl mx-auto">
@@ -316,6 +339,7 @@ export default function CreateListing() {
               </div>
             </div>
           )}
+          
         </div>
 
         <div className="flex flex-col gap-4 max-w-md">
@@ -367,7 +391,11 @@ export default function CreateListing() {
               </div>
             ))}
 
-            <MapComponent/>
+          <div>
+            <p className="font-semibold">Mark the location of property: </p>
+            <br />
+            <MapComponent onMarkerPlaced={handleMarkerPlaced} />
+          </div>
 
           <button
             disabled={loading || uploading}

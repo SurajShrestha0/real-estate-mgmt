@@ -8,8 +8,9 @@ import {
 import { app } from "../firebase";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import MapComponent from "../components/MapComponent";
 
-export default function CreateListing() {
+export default function UpdateListing() {
   const { currentUser, access_token } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const params = useParams();
@@ -28,6 +29,8 @@ export default function CreateListing() {
     offer: false,
     parking: false,
     furnished: false,
+    latitude: null,
+    longitude: null,
   });
 
   const [imageUploadError, setImageUploadError] = useState(false);
@@ -182,6 +185,16 @@ export default function CreateListing() {
       setLoading(false);
     }
   };
+
+  const handleMarkerPlaced = (latitude, longitude) => {
+    setFormData({
+      ...formData,
+      latitude,
+      longitude,
+    });
+  };
+
+  console.log(formData.latitude, formData.longitude);
 
   return (
     <main className="p-3 max-w-4xl mx-auto">
@@ -382,6 +395,14 @@ export default function CreateListing() {
                 </button>
               </div>
             ))}
+
+          {formData.latitude !== null && formData.longitude !== null && (
+            <MapComponent
+              latitude={formData.latitude}
+              longitude={formData.longitude}
+              onMarkerPlaced={handleMarkerPlaced}
+            />
+          )}
 
           <button
             disabled={loading || uploading}
