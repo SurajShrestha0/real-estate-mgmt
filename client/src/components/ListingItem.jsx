@@ -1,9 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { MdLocationOn } from "react-icons/md";
-import MapComponent from "../components/MapComponent";
+// import MapComponent from "../components/MapComponent";
 
 export default function ListingItem({ listing }) {
+  // console.log(listing);
   return (
     <div className="bg-white shadow-md hover:shadow-lg transition-shadow overflow-hidden rounded-lg w-full sm:w-[400px]">
       <Link to={`/listing/${listing._id}`}>
@@ -16,7 +17,7 @@ export default function ListingItem({ listing }) {
             alt="Listing cover"
             className="w-full h-full object-cover hover:scale-105 transition-scale duration-300"
           />
-          {/* MapComponent */}
+          
         </div>
         <div className="p-3 flex flex-col gap-2">
           <p className="truncate text-lg font-semibold text-slate-700">
@@ -52,12 +53,7 @@ export default function ListingItem({ listing }) {
             </div>
           </div>
         </div>
-        <div className="absolute inset-0">
-          <MapComponent
-            latitude={listing.latitude}
-            longitude={listing.longitude}
-          />
-        </div>
+        
       </Link>
     </div>
   );

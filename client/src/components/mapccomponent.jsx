@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-const MapComponent = ({ marker, onMarkerPlaced }) => {
+const MapComponent = ({ onMarkerPlaced }) => {
   const mapContainerRef = useRef(null);
   const markerRef = useRef(null);
   const [map, setMap] = useState(null);
@@ -23,12 +23,15 @@ const MapComponent = ({ marker, onMarkerPlaced }) => {
         setMap(map);
       });
 
+      map.on("click", handleMapClick);
+
       // Prevent default click behavior of the map container
       mapContainerRef.current.addEventListener("click", (e) => {
         e.preventDefault();
       });
 
       return () => {
+        map.off("click", handleMapClick);
         map.remove();
       };
     };
@@ -36,29 +39,7 @@ const MapComponent = ({ marker, onMarkerPlaced }) => {
     if (!map) initializeMap({ setMap, mapContainerRef });
   }, [map]);
 
-  useEffect(() => {
-    if (map && marker) {
-      const { latitude, longitude } = marker;
-      if (markerRef.current) {
-        markerRef.current.setLngLat([longitude, latitude]);
-      } else {
-        const newMarker = new mapboxgl.Marker()
-          .setLngLat([longitude, latitude])
-          .addTo(map);
-        markerRef.current = newMarker;
-      }
-
-      map.flyTo({
-        center: [longitude, latitude],
-        essential: true,
-      });
-
-    }
-  }, [map, marker]);
-
   const handleMapClick = (event) => {
-    if (!map) return; // Ensure map is initialized
-
     if (markerRef.current) {
       markerRef.current.remove(); // Remove the previous marker
     }
@@ -75,7 +56,7 @@ const MapComponent = ({ marker, onMarkerPlaced }) => {
 
   useEffect(() => {
     if (map) {
-      map.on("click", handleMapClick); // Attach click event listener
+      map.on("click", handleMapClick); // Re-attach click event listener
     }
   }, [map]);
 
