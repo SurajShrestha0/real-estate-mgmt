@@ -16,7 +16,8 @@ import Search from "./pages/Search";
 import ContactUs from "./components/ContactUs";
 import Users from "./pages/Users";
 import AdminListings from "./pages/AdminListings";
-import MessagesFromContact from "./pages/messagesFromContact";
+import MessagesFromContact from "./pages/MessagesFromContact";
+import BrokerMessage from "./pages/BrokerMessage";
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path='/search' element={<Search /> } />
         <Route path='/contact-us' element={<ContactUs /> } />
+        <Route path='/messages-from-tenant' element={<BrokerMessage /> } />
         <Route path='/admin-dashboard/users' element={<Users /> } />
         <Route path='/admin-dashboard/listings' element={<AdminListings /> } />
         <Route path='/admin-dashboard/messages-from-contact' element={<MessagesFromContact /> } />

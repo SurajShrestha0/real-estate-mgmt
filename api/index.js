@@ -1,3 +1,4 @@
+// Import necessary modules
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
@@ -7,11 +8,13 @@ import authRouter from "./routes/auth.route.js";
 import listingRouter from "./routes/listing.route.js";
 import cookieParser from "cookie-parser";
 import contactRouter from "./routes/contact.route.js";
+import tenantFormDataRouter from "./routes/brokerContactForm.route.js";
 import http from "http";
 import { Server } from "socket.io";
 
 dotenv.config();
 
+// Connect to MongoDB
 mongoose
   .connect(process.env.MONGO)
   .then(() => {
@@ -21,16 +24,18 @@ mongoose
     console.error("Error connecting to MongoDB:", err);
   });
 
+// Create express app
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
-//Creating an HTTP server
+// Create HTTP server
 const server = http.createServer(app);
 
-//Integrating Socket.IO
+// Integrate Socket.IO with the server
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173",
@@ -40,19 +45,15 @@ const io = new Server(server, {
   },
 });
 
+// Listen for new connections
 io.on("connection", (socket) => {
   console.log("A user connected");
 
-  // Example: Assume socket has adminId property set when admin logs in
-  const adminId = socket.adminId;
-
-  // Listen for new messages and send notifications to admin clients
-  socket.on("newMessage", (message) => {
-    // Check if the message is for the current admin
-    if (message.adminId === adminId) {
-      // Emit a notification event to the specific admin client
-      socket.emit("notification", "You have a new message");
-    }
+  // Listen for new form data
+  socket.on("newFormData", ({ brokerId }) => {
+    console.log("Received newFormData with brokerId:", brokerId);
+    // Emit the newFormData event to the specific broker client
+    socket.to(brokerId).emit("newFormData", { listingName: "Name of the listing" });
   });
 
   socket.on("disconnect", () => {
@@ -60,10 +61,12 @@ io.on("connection", (socket) => {
   });
 });
 
+// Start the server
 server.listen(3000, () => {
   console.log("Server is running on port 3000");
 });
 
+// Define routes
 app.get("/test", (req, res) => {
   res.send("Hello World");
 });
@@ -72,6 +75,11 @@ app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
 app.use("/api/contact", contactRouter);
+app.use("/api/tenantFormData", tenantFormDataRouter);
+
+app.use((req, res, next) => {
+  res.status(404).json({ message: "Not Found" });
+});
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
@@ -83,4 +91,5 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Export io for use in other modules
 export { io };

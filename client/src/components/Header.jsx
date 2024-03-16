@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaSearch, FaBell } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { SiGooglemessages } from "react-icons/si";
 import { useSelector } from "react-redux";
 import io from "socket.io-client";
 
@@ -131,6 +132,14 @@ export default function Header() {
               About
             </div>
           </Link>
+
+
+          {currentUser && currentUser.userType === "broker" && (
+            
+            <Link to="/messages-from-tenant">
+            <SiGooglemessages className="text-slate-700 cursor-pointer w-5 h-5" />
+          </Link>
+          )}
 
           {/* Notification icon for admins */}
           {currentUser && currentUser.userType === "admin" && (

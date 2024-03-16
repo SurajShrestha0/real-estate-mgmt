@@ -1,24 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
+import io from "socket.io-client";
+
+const socket = io("http://localhost:3000");
 
 export default function Contact({ listing }) {
-  const [broker, setBroker] = useState(null);
-  const [message, setMessage] = useState('');
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [appointmentMessage, setAppointmentMessage] = useState('');
+ const [broker, setBroker] = useState(null);
+ const [name, setName] = useState("");
+ const [phoneNumber, setPhoneNumber] = useState("");
+ const [message, setMessage] = useState("");
+ const [notification, setNotification] = useState("");
+ const [isSocketConnected, setIsSocketConnected] = useState(socket.connected);
 
-  const onChangeMessage = (e) => {
-    setMessage(e.target.value);
-  };
-
-  const onChangeDate = (date) => {
-    setSelectedDate(date);
-  };
-
-  const onChangeAppointmentMessage = (e) => {
-    setAppointmentMessage(e.target.value);
-  };
-
-  useEffect(() => {
+ useEffect(() => {
     const fetchBroker = async () => {
       try {
         const res = await fetch(`/api/user/${listing.userRef}`);
@@ -29,76 +22,107 @@ export default function Contact({ listing }) {
       }
     };
     fetchBroker();
-  }, [listing.userRef]);
+ }, [listing.userRef]);
 
-  const openGmailCompose = () => {
-    const email = encodeURIComponent(broker.email);
-    const subject = encodeURIComponent(`Appointment Request for ${listing.name}`);
-    const body = encodeURIComponent(
-      `Hello ${broker.username},%0D%0A%0D%0AI am interested in scheduling an appointment with you to discuss the property ${listing.name}.%0D%0A%0D%0AProposed Date: ${selectedDate}%0D%0A%0D%0AMessage: ${appointmentMessage}`
-    );
-    const gmailUrl = `https://mail.google.com/mail/u/0/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`;
-    window.open(gmailUrl);
-  };
+ useEffect(() => {
+    // Update socket connection status
+    const handleSocketConnection = () => {
+      setIsSocketConnected(socket.connected);
+    };
+    socket.on("connect", handleSocketConnection);
+    socket.on("disconnect", handleSocketConnection);
 
-  return (
+    // Clean up event listeners when component unmounts
+    return () => {
+      socket.off("connect", handleSocketConnection);
+      socket.off("disconnect", handleSocketConnection);
+    };
+ }, []);
+
+ const onChangeName = (e) => setName(e.target.value);
+ const onChangePhoneNumber = (e) => setPhoneNumber(e.target.value);
+ const onChangeMessage = (e) => setMessage(e.target.value);
+
+ const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("/api/tenantFormData/saveFormData", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          phoneNumber,
+          message,
+          brokerId: broker._id,
+          listingName: listing.name,
+        }),
+      });
+      if (response.ok) {
+        console.log("Form data saved successfully!");
+      } else {
+        console.error("Failed to save form data");
+      }
+    } catch (error) {
+      console.error("Error saving form data:", error);
+    }
+ };
+
+ return (
     <>
-      {broker && (
-        <div className='flex flex-col gap-4'>
-          <p>
-            Contact <span className='font-semibold'>{broker.username}</span> for{' '}
-            <span className='font-semibold'>{listing.name.toLowerCase()}</span>
+      {broker && socket.connected && (
+        <div className="flex flex-col gap-4 p-8 bg-white rounded-lg shadow-lg">
+          <p className="text-xl font-semibold">
+            Contact{" "}
+            <span className="font-bold text-slate-700">{broker.username}</span>{" "}
+            for{" "}
+            <span className="font-bold text-slate-700">
+              {listing.name.toLowerCase()}
+            </span>
           </p>
-          <textarea
-            name='message'
-            id='message'
-            rows='4'
-            value={message}
-            onChange={onChangeMessage}
-            placeholder='Enter your message here...'
-            className='w-full border p-3 rounded-lg'
-          ></textarea>
-
-          <div className='flex flex-col gap-4'>
-            <p>Schedule Appointment:</p>
-            <input
-              type='date'
-              value={selectedDate}
-              onChange={(e) => onChangeDate(e.target.value)}
-              className='border p-3 rounded-lg'
-            />
-            <textarea
-              name='appointmentMessage'
-              id='appointmentMessage'
-              rows='4'
-              value={appointmentMessage}
-              onChange={onChangeAppointmentMessage}
-              placeholder='Enter your appointment message here...'
-              className='w-full border p-3 rounded-lg'
-            ></textarea>
-          </div>
-
-          <div className='flex justify-between'>
-            <button
-              onClick={() =>
-                window.open(
-                  `mailto:${broker.email}?subject=Regarding ${listing.name}&body=${message}`
-                )
-              }
-              className='bg-slate-700 text-white text-center p-3 uppercase rounded-lg hover:opacity-95'
-            >
-              Send Message
-            </button>
-
-            <button
-              onClick={openGmailCompose}
-              className='bg-slate-700 text-white text-center p-3 uppercase rounded-lg hover:opacity-95'
-            >
-              Schedule Appointment
-            </button>
-          </div>
+          {notification && (
+            <div className="bg-gray-200 p-2 rounded-lg">{notification}</div>
+          )}
+          {isSocketConnected ? (
+            <form onSubmit={handleSubmit}>
+              <div className="flex flex-col gap-4">
+                <input
+                 type="text"
+                 value={name}
+                 onChange={onChangeName}
+                 placeholder="Your Name"
+                 className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+                <input
+                 type="tel"
+                 value={phoneNumber}
+                 onChange={onChangePhoneNumber}
+                 placeholder="Phone Number"
+                 className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+                <textarea
+                 name="message"
+                 id="message"
+                 rows="4"
+                 value={message}
+                 onChange={onChangeMessage}
+                 placeholder="Enter your message here..."
+                 className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full py-2 mt-4 bg-slate-700 text-white rounded-lg hover:opacity-95"
+              >
+                Send to {broker.username}
+              </button>
+            </form>
+          ) : (
+            <p>Socket is not connected.</p>
+          )}
         </div>
       )}
     </>
-  );
+ );
 }
