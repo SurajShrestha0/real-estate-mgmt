@@ -37,7 +37,7 @@ export default function Listings() {
   // Function to get username from user id
   const getUsernameFromUserId = (userId) => {
     const user = userList.find((user) => user._id === userId);
-    // console.log(user);
+
     return user ? user.username : "Unknown";
   };
 
@@ -77,22 +77,22 @@ const renderListings = () => {
       <div className="container mx-auto px-4 pt-8 ">
         <h1 className="text-3xl font-bold mb-4">Listings</h1>
         <div className="overflow-y-auto h-[615px]">
-          <table className="table-auto w-full border border-gray-200 border-collapse striped ">
-            <thead>
+          <table className="table-auto w-full border border-gray-300 border-collapse striped ">
+            <thead className="sticky top-0 z-50">
               <tr className="bg-gray-100">
-                <th className="px-4 py-2 bg-gray-100 text-bold">Date Created</th>
-                <th className="px-4 py-2 bg-gray-100 text-bold">Username</th>
-                <th className="px-4 py-2 bg-gray-100 text-bold">Title</th>
-                <th className="px-4 py-2 bg-gray-100 text-bold">Description</th>
-                <th className="px-4 py-2 bg-gray-100 text-bold">Address</th>
-                <th className="px-4 py-2 bg-gray-100 text-bold">Regular Price</th>
-                <th className="px-4 py-2 bg-gray-100 text-bold">Discount Price</th>
-                <th className="px-4 py-2 bg-gray-100 text-bold">Bathrooms</th>
-                <th className="px-4 py-2 bg-gray-100 text-bold">Bedrooms</th>
-                <th className="px-4 py-2 bg-gray-100 text-bold">Furnished</th>
-                <th className="px-4 py-2 bg-gray-100 text-bold">Parking</th>
-                <th className="px-4 py-2 bg-gray-100 text-bold">Type</th>
-                <th className="px-4 py-2 bg-gray-100 text-bold">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-bold bg-slate-700 text-slate-200">Date Created</th>
+                <th className="px-6 py-3 text-left text-xs font-bold bg-slate-700 text-slate-200 ">Username</th>
+                <th className="px-6 py-3 text-left text-xs font-bold bg-slate-700 text-slate-200 ">Title</th>
+                <th className="px-6 py-3 text-left text-xs font-bold bg-slate-700 text-slate-200 ">Description</th>
+                <th className="px-6 py-3 text-left text-xs font-bold bg-slate-700 text-slate-200 ">Address</th>
+                <th className="px-6 py-3 text-left text-xs font-bold bg-slate-700 text-slate-200 ">Regular Price</th>
+                <th className="px-6 py-3 text-left text-xs font-bold bg-slate-700 text-slate-200 ">Discount Price</th>
+                <th className="px-6 py-3 text-left text-xs font-bold bg-slate-700 text-slate-200 ">Bathrooms</th>
+                <th className="px-6 py-3 text-left text-xs font-bold bg-slate-700 text-slate-200 ">Bedrooms</th>
+                <th className="px-6 py-3 text-left text-xs font-bold bg-slate-700 text-slate-200 ">Furnished</th>
+                <th className="px-6 py-3 text-left text-xs font-bold bg-slate-700 text-slate-200 ">Parking</th>
+                <th className="px-6 py-3 text-left text-xs font-bold bg-slate-700 text-slate-200 ">Type</th>
+                <th className="px-6 py-3 text-left text-xs font-bold bg-slate-700 text-slate-200 ">Actions</th>
               </tr>
             </thead>
             <tbody>{renderListings()}</tbody>

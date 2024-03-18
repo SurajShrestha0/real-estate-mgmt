@@ -1,7 +1,4 @@
 import { useEffect, useState } from "react";
-import io from "socket.io-client";
-
-const socket = io("http://localhost:3000");
 
 export default function Contact({ listing }) {
  const [broker, setBroker] = useState(null);
@@ -9,7 +6,6 @@ export default function Contact({ listing }) {
  const [phoneNumber, setPhoneNumber] = useState("");
  const [message, setMessage] = useState("");
  const [notification, setNotification] = useState("");
- const [isSocketConnected, setIsSocketConnected] = useState(socket.connected);
 
  useEffect(() => {
     const fetchBroker = async () => {
@@ -23,21 +19,6 @@ export default function Contact({ listing }) {
     };
     fetchBroker();
  }, [listing.userRef]);
-
- useEffect(() => {
-    // Update socket connection status
-    const handleSocketConnection = () => {
-      setIsSocketConnected(socket.connected);
-    };
-    socket.on("connect", handleSocketConnection);
-    socket.on("disconnect", handleSocketConnection);
-
-    // Clean up event listeners when component unmounts
-    return () => {
-      socket.off("connect", handleSocketConnection);
-      socket.off("disconnect", handleSocketConnection);
-    };
- }, []);
 
  const onChangeName = (e) => setName(e.target.value);
  const onChangePhoneNumber = (e) => setPhoneNumber(e.target.value);
@@ -71,7 +52,6 @@ export default function Contact({ listing }) {
 
  return (
     <>
-      {broker && socket.connected && (
         <div className="flex flex-col gap-4 p-8 bg-white rounded-lg shadow-lg">
           <p className="text-xl font-semibold">
             Contact{" "}
@@ -84,7 +64,6 @@ export default function Contact({ listing }) {
           {notification && (
             <div className="bg-gray-200 p-2 rounded-lg">{notification}</div>
           )}
-          {isSocketConnected ? (
             <form onSubmit={handleSubmit}>
               <div className="flex flex-col gap-4">
                 <input
@@ -118,11 +97,8 @@ export default function Contact({ listing }) {
                 Send to {broker.username}
               </button>
             </form>
-          ) : (
-            <p>Socket is not connected.</p>
-          )}
+      
         </div>
-      )}
     </>
  );
 }

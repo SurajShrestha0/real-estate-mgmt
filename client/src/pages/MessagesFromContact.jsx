@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
-import { io } from "socket.io-client";
 
 export default function MessagesFromContactUs() {
   const [messages, setMessages] = useState([]);
@@ -78,11 +77,14 @@ export default function MessagesFromContactUs() {
         // Update the messages state to remove the deleted message
         setMessages((prevMessages) =>
           prevMessages.filter((msg) => msg._id !== messageId)
+          
         );
+        
       })
       .catch((error) => {
         console.error("Error deleting message:", error);
       });
+      
   };
 
   return (
@@ -128,6 +130,7 @@ export default function MessagesFromContactUs() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
+                        
                         <button
                           onClick={() => handleDelete(message._id)}
                           className="text-red-500 hover:text-red-700"
@@ -137,11 +140,11 @@ export default function MessagesFromContactUs() {
                       </td>
                     </tr>
                     {selectedMessage && selectedMessage._id === message._id && (
-                      <tr>
-                        <td colSpan="4" className="px-6 py-4">
-                          <div className="bg-white shadow-md rounded-lg p-4">
-                            <h3 className="text-lg font-semibold mb-2">Message Content</h3>
-                            <p>{selectedMessage.message}</p>
+                      <tr className=" bg-gray-200">
+                        <td colSpan="4" className="px-6 py-4  rounded-b-2xl">
+                          <div className="">
+                            <h3 className="text-base font-semibold text-gray-700 mb-2">Message from {selectedMessage.email}:</h3>
+                            <p className="font-bold">{selectedMessage.message}</p>
                           </div>
                         </td>
                       </tr>

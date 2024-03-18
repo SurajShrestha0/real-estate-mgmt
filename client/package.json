@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@magicbell/magicbell-react": "^10.10.1",
     "@reduxjs/toolkit": "^2.2.1",
+    "@tawk.to/tawk-messenger-react": "^2.0.2",
     "@types/redux-persist": "^4.3.1",
     "bcryptjs": "^2.4.3",
     "chart.js": "^4.4.1",
@@ -35,9 +37,6 @@
     "react-router-dom": "^6.21.1",
     "redux": "^5.0.1",
     "redux-persist": "^6.0.0",
-    "socket-io": "^1.0.0",
-    "socket.io": "^4.7.4",
-    "socket.io-client": "^4.7.4",
     "swiper": "^11.0.6"
   },
   "devDependencies": {

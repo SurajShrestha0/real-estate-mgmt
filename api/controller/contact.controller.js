@@ -1,5 +1,4 @@
 import Message from "../models/contactUs.model.js";
-import { io } from "../index.js";
 
 export const sendMessage = async (req, res) => {
   try {
@@ -15,9 +14,6 @@ export const sendMessage = async (req, res) => {
 
     // Save the message to the database
     await newMessage.save();
-
-    // Emit the new message to all connected users
-    io.emit("newMessage", { email, subject, message });
 
     // Respond with success status
     res.status(201).json({ message: "Message sent successfully" });

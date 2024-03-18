@@ -18,6 +18,7 @@ import Users from "./pages/Users";
 import AdminListings from "./pages/AdminListings";
 import MessagesFromContact from "./pages/MessagesFromContact";
 import BrokerMessage from "./pages/BrokerMessage";
+import TwakDash from "./pages/TwakDash";
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
         <Route path='/admin-dashboard/users' element={<Users /> } />
         <Route path='/admin-dashboard/listings' element={<AdminListings /> } />
         <Route path='/admin-dashboard/messages-from-contact' element={<MessagesFromContact /> } />
+        <Route path='/admin-dashboard/twak-dash' element={<TwakDash /> } />
         <Route path="/listing/:listingId" element={<Listing />} />
 
         <Route element={<PrivateRoute />}>

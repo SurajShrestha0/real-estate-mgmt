@@ -9,8 +9,7 @@ import listingRouter from "./routes/listing.route.js";
 import cookieParser from "cookie-parser";
 import contactRouter from "./routes/contact.route.js";
 import tenantFormDataRouter from "./routes/brokerContactForm.route.js";
-import http from "http";
-import { Server } from "socket.io";
+import notificationRouter from "./routes/notification.route.js";
 
 dotenv.config();
 
@@ -32,38 +31,10 @@ app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
-// Create HTTP server
-const server = http.createServer(app);
-
-// Integrate Socket.IO with the server
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
-    allowedHeaders: ["my-custom-header"],
-    credentials: true,
-  },
-});
-
-// Listen for new connections
-io.on("connection", (socket) => {
-  console.log("A user connected");
-
-  // Listen for new form data
-  socket.on("newFormData", ({ brokerId }) => {
-    console.log("Received newFormData with brokerId:", brokerId);
-    // Emit the newFormData event to the specific broker client
-    socket.to(brokerId).emit("newFormData", { listingName: "Name of the listing" });
-  });
-
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
-  });
-});
-
 // Start the server
-server.listen(3000, () => {
-  console.log("Server is running on port 3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+ console.log(`Server is running on port ${PORT}`);
 });
 
 // Define routes
@@ -76,6 +47,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
 app.use("/api/contact", contactRouter);
 app.use("/api/tenantFormData", tenantFormDataRouter);
+app.use("/api/notification", notificationRouter);
 
 app.use((req, res, next) => {
   res.status(404).json({ message: "Not Found" });
@@ -91,5 +63,3 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Export io for use in other modules
-export { io };

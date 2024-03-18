@@ -63,7 +63,14 @@ export default function AdminDashboard() {
     try {
       const res = await fetch("api/user/getusers");
       const data = await res.json();
-      setTotalUsers(data.totalUsers);
+
+      // Filter out users with userType "admin"
+      const nonAdminUsers = data.users.filter(
+        (user) => user.userType !== "admin"
+      );
+
+      // Set the total count
+      setTotalUsers(nonAdminUsers.length);
     } catch (error) {
       console.error("Error fetching total users:", error);
     }
