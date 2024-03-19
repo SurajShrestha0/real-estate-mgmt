@@ -10,6 +10,7 @@ import cookieParser from "cookie-parser";
 import contactRouter from "./routes/contact.route.js";
 import tenantFormDataRouter from "./routes/brokerContactForm.route.js";
 import notificationRouter from "./routes/notification.route.js";
+import { MagicBell } from "magicbell";
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ mongoose
     console.error("Error connecting to MongoDB:", err);
   });
 
+
 // Create express app
 const app = express();
 
@@ -30,6 +32,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
+
+
+MagicBell.configure({
+  apiKey: '7a9b98ab0777134fc246eeab9aa82338718b0bff'
+});
 
 // Start the server
 const PORT = process.env.PORT || 3000;

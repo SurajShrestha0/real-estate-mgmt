@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@magicbell/magicbell-react": "^10.10.1",
     "@reduxjs/toolkit": "^2.2.1",
     "@tawk.to/tawk-messenger-react": "^2.0.2",
     "@types/redux-persist": "^4.3.1",
