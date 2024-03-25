@@ -10,7 +10,7 @@ import cookieParser from "cookie-parser";
 import contactRouter from "./routes/contact.route.js";
 import tenantFormDataRouter from "./routes/brokerContactForm.route.js";
 import notificationRouter from "./routes/notification.route.js";
-import * as MagicBell from "magicbell";
+// import * as MagicBell from "magicbell";
 
 dotenv.config();
 
@@ -25,10 +25,10 @@ mongoose
   });
 
 // Initialize MagicBell with API keys
-const magicbell = new MagicBell({
-  apiKey: "7a9b98ab0777134fc246eeab9aa82338718b0bff",
-  apiSecret: "L8sAbmeLe3YKkVrb8HV448DIIEaDYr5Sznm7XjzS",
-});
+// const magicbell = new MagicBell({
+//   apiKey: "7a9b98ab0777134fc246eeab9aa82338718b0bff",
+//   apiSecret: "L8sAbmeLe3YKkVrb8HV448DIIEaDYr5Sznm7XjzS",
+// });
 
 // Create express app
 const app = express();

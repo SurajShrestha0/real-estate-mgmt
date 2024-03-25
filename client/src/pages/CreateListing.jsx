@@ -9,6 +9,7 @@ import { app } from "../firebase";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import MapComponent from "../components/MapComponent.jsx";
+import { toast } from "react-hot-toast";
 
 export default function CreateListing() {
   const { currentUser, access_token } = useSelector((state) => state.user);
@@ -183,9 +184,11 @@ export default function CreateListing() {
       }
   
       navigate(`/listing/${data._id}`);
+      toast.success("Listing created successfully");
     } catch (error) {
       setError(error.message);
       setLoading(false);
+      toast.error("Failed to create listing");
     }
   };
   

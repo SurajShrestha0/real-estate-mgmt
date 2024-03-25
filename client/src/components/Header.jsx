@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { useSelector } from "react-redux";
-import { MagicBellProvider, FloatingNotificationInbox } from "@magicbell/magicbell-react";
+import { MagicBellProvider } from "@magicbell/magicbell-react";
 import { FaSearch, FaBell } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { SiGooglemessages } from "react-icons/si";
@@ -133,7 +133,7 @@ export default function Header() {
               <FaBell className="text-slate-700 cursor-pointer" />
               {/* Example: Displaying a badge for new notifications */}
               {/* You would replace this with actual logic to fetch and display new notifications */}
-              <span className="badge">{notifications.length}</span>
+              {/* <span className="badge">{notifications.length}</span> */}
             </div>
             <Link to="/profile">
               {currentUser ? (
