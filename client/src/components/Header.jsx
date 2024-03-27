@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { useSelector } from "react-redux";
-import { MagicBellProvider } from "@magicbell/magicbell-react";
+// import { MagicBellProvider } from "@magicbell/magicbell-react";
 import { FaSearch, FaBell } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { SiGooglemessages } from "react-icons/si";
@@ -16,19 +16,19 @@ export default function Header() {
  const [notifications, setNotifications] = useState([]);
 
  // Fetch new notifications from Magic Bell
- useEffect(() => {
-  if (currentUser) {
-    fetch(`https://api.magicbell.io/v1/users/${currentUser.id}/notifications`, {
-      headers: {
-        'Authorization': `Bearer YOUR_MAGIC_BELL_API_KEY`,
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(response => response.json())
-    .then(data => setNotifications(data.notifications))
-    .catch(error => console.error('Error fetching notifications:', error));
-  }
-}, [currentUser]);
+//  useEffect(() => {
+//   if (currentUser) {
+//     fetch(`https://api.magicbell.io/v1/users/${currentUser.id}/notifications`, {
+//       headers: {
+//         'Authorization': `Bearer YOUR_MAGIC_BELL_API_KEY`,
+//         'Content-Type': 'application/json',
+//       },
+//     })
+//     .then(response => response.json())
+//     .then(data => setNotifications(data.notifications))
+//     .catch(error => console.error('Error fetching notifications:', error));
+//   }
+// }, [currentUser]);
 
  const handleHomeClick = () => {
     if (currentUser) {
@@ -71,15 +71,15 @@ export default function Header() {
   // Logic to handle notification click
   // This could involve opening the MagicBell inbox or updating notification counts
   // For example, you might want to navigate to a specific page related to the notifications
-  navigate("/notifications");
+  // navigate("/notifications");
 };
 
  return (
-    <MagicBellProvider
-      apiKey="7a9b98ab0777134fc246eeab9aa82338718b0bff"
-      userEmail={currentUser?.email}
-      theme={{ icon: { borderColor: "white" } }}
-    >
+    // <MagicBellProvider
+      // apiKey="7a9b98ab0777134fc246eeab9aa82338718b0bff"
+      // userEmail={currentUser?.email}
+      // theme={{ icon: { borderColor: "white" } }}
+    // >
       <header className="bg-slate-200 shadow-md sticky top-0 z-50">
         <div className="flex justify-between items-center max-w-7xl mx-auto p-3">
           <h1
@@ -154,7 +154,7 @@ export default function Header() {
           </div>
         </div>
       </header>
-    </MagicBellProvider>
+    // </MagicBellProvider>
  );
 }
 
